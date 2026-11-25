@@ -4,65 +4,74 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="Referencia para R-Info (UNLP): diccionario de palabras reservadas, anatomía del robot y el área, probador de expresiones lógicas y plantilla base del lenguaje." />
+  <meta name="description" content="Referencia interactiva para R-Info (UNLP): diccionario de palabras reservadas, anatomía visual del robot y el área, simulador lógico paso a paso y plantillas del lenguaje." />
   <meta name="color-scheme" content="light dark" />
-  <title>Diccionario y Anatomía de R-Info (UNLP)</title>
+  <title>R-Info (UNLP) — Diccionario, Anatomía y Simulador</title>
 
   <!--
-    Inicialización SÍNCRONA del tema (debe ejecutarse ANTES de que el navegador pinte el primer frame).
-    Lee la preferencia del usuario desde localStorage y la aplica al elemento raíz inmediatamente,
-    eliminando el destello blanco (FOUC) al recargar la página en modo oscuro.
-    No usa import ni módulos para garantizar ejecución instantánea.
+    Inicialización síncrona de tema y paleta antes del primer renderizado para evitar destellos (FOUC).
   -->
   <script>
-    (function () {
-      var CLAVE = "preferencia_tema_rinfo";
-      var tema = null;
-      try { tema = localStorage.getItem(CLAVE); } catch (e) {}
-      if (!tema) {
-        tema = (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches)
-          ? "oscuro" : "claro";
+    (() => {
+      const CLAVE_TEMA = "preferencia_tema_rinfo";
+      const CLAVE_PALETA = "preferencia_paleta_rinfo";
+      const PALETAS_VALIDAS = ["cobalto", "indigo", "menta", "coral"];
+      let tema = null;
+      let paleta = null;
+
+      try {
+        tema = localStorage.getItem(CLAVE_TEMA);
+        paleta = localStorage.getItem(CLAVE_PALETA);
+      } catch {}
+
+      if (tema !== "claro" && tema !== "oscuro") {
+        tema = window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "oscuro" : "claro";
       }
-      document.documentElement.setAttribute("data-tema", tema);
-      // Informar al navegador el esquema de color activo para controles nativos (scrollbars, inputs, etc.)
-      document.documentElement.style.colorScheme = tema === "oscuro" ? "dark" : "light";
+
+      if (!PALETAS_VALIDAS.includes(paleta)) {
+        paleta = "cobalto";
+      }
+
+      const raiz = document.documentElement;
+      raiz.dataset.tema = tema;
+      raiz.dataset.paleta = paleta;
+      raiz.style.colorScheme = tema === "oscuro" ? "dark" : "light";
     })();
   </script>
 
-  <!-- Tipografía Inter -->
+  <!-- Tipografías Inter y JetBrains Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Hojas de estilo modulares -->
-  <link rel="stylesheet" href="assets/css/variables.css" />
-  <link rel="stylesheet" href="assets/css/base.css" />
-  <link rel="stylesheet" href="assets/css/distribucion.css" />
-  <link rel="stylesheet" href="assets/css/componentes.css" />
-  <link rel="stylesheet" href="assets/css/vistas.css" />
-  <link rel="stylesheet" href="assets/css/utilidades.css" />
+  <link rel="stylesheet" href="assets/css/variables.css?v=4" />
+  <link rel="stylesheet" href="assets/css/base.css?v=4" />
+  <link rel="stylesheet" href="assets/css/distribucion.css?v=4" />
+  <link rel="stylesheet" href="assets/css/componentes.css?v=4" />
+  <link rel="stylesheet" href="assets/css/vistas.css?v=4" />
+  <link rel="stylesheet" href="assets/css/utilidades.css?v=4" />
 </head>
 
 <body>
   <!-- Región para anuncios accesibles a lectores de pantalla -->
   <div id="regionAnuncios" class="solo-lector" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Encabezado y Navegación Principal Flotante (Cápsula translúcida estilo DeepSeek) -->
+  <!-- Encabezado Flotante en Cápsula -->
   <header id="encabezadoPrincipal">
     <div class="encabezado-interno">
-      <div class="marca" role="button" tabindex="0" data-vista="vistaDiccionario" aria-label="Ir al inicio de R-Info">
-        <div class="logotipo" aria-hidden="true">R</div>
-        <div class="texto-marca">
+      <button type="button" class="marca" data-vista="vistaDiccionario" aria-label="Ir al inicio de R-Info">
+        <span class="logotipo" aria-hidden="true">R</span>
+        <span class="texto-marca">
           <span class="nombre-marca">R-Info</span>
           <span class="distintivo-marca">UNLP</span>
-        </div>
-      </div>
+        </span>
+      </button>
 
-      <!-- Navegación de escritorio en píldoras horizontales -->
+      <!-- Navegación de escritorio en píldoras -->
       <nav class="pestanas-navegacion" aria-label="Secciones principales">
         <button type="button" class="boton pestana-activa" data-vista="vistaDiccionario" aria-current="page">
-          <svg class="icono icono-libro" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <svg class="icono icono-libro" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             <path d="M8 7h8"></path>
@@ -71,8 +80,7 @@
           <span>Diccionario</span>
         </button>
         <button type="button" class="boton" data-vista="vistaAnatomia">
-          <svg class="icono icono-robot" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <svg class="icono icono-robot" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <rect x="3" y="11" width="18" height="10" rx="2"></rect>
             <circle cx="12" cy="5" r="2"></circle>
             <path d="M12 7v4"></path>
@@ -83,38 +91,44 @@
           <span>Robot y Área</span>
         </button>
         <button type="button" class="boton" data-vista="vistaSimulador">
-          <svg class="icono icono-rayo" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <svg class="icono icono-rayo" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <span>Probador Lógico</span>
         </button>
         <button type="button" class="boton" data-vista="vistaPlantilla">
-          <svg class="icono icono-documento" viewBox="0 0 24 24" width="18" height="18" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-            focusable="false">
+          <svg class="icono icono-documento" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span>Plantilla Base</span>
+          <span>Plantillas</span>
         </button>
-        <button type="button" class="boton" id="botonTema" aria-label="Cambiar a tema oscuro"
-          title="Cambiar a tema oscuro">
-          <span id="iconoTema" aria-hidden="true"><svg class="icono icono-luna" viewBox="0 0 24 24" width="18"
-              height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
-            </svg></span>
-          <span class="solo-lector" id="etiquetaTema">Cambiar a tema oscuro</span>
-        </button>
+
+        <div class="controles-apariencia">
+          <button type="button" class="boton-apariencia" id="botonPaleta" aria-expanded="false" aria-controls="popoverPaleta" title="Elegir paleta de colores">
+            <span class="muestra-paleta-activa" aria-hidden="true"></span>
+            <span class="etiqueta-boton-paleta">Paleta</span>
+          </button>
+
+          <button type="button" class="boton-apariencia" id="botonTema" aria-label="Cambiar a tema oscuro" title="Cambiar a tema oscuro">
+            <span id="iconoTema" aria-hidden="true">
+              <svg class="icono icono-luna" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+              </svg>
+            </span>
+            <span class="solo-lector" id="etiquetaTema">Cambiar a tema oscuro</span>
+          </button>
+
+          <!-- Popover Selector de Paletas -->
+          <div class="popover-paleta" id="popoverPaleta" role="region" aria-label="Selector de paleta de colores" aria-hidden="true"></div>
+        </div>
       </nav>
 
-      <!-- Botón Menú Hamburguesa Móvil (3 líneas estilo DeepSeek) -->
-      <button type="button" class="boton-hamburguesa" id="botonMenuHamburguesa" aria-label="Abrir menú de navegación"
-        aria-expanded="false" aria-controls="menuMovil">
+      <!-- Botón Menú Hamburguesa Móvil -->
+      <button type="button" class="boton-hamburguesa" id="botonMenuHamburguesa" aria-label="Abrir menú de navegación" aria-expanded="false" aria-controls="menuMovil">
         <span class="linea-hamburguesa"></span>
         <span class="linea-hamburguesa"></span>
         <span class="linea-hamburguesa"></span>
@@ -125,8 +139,7 @@
     <nav class="menu-movil" id="menuMovil" aria-label="Navegación móvil" aria-hidden="true">
       <div class="menu-movil-lista">
         <button type="button" class="boton-menu-movil pestana-activa" data-vista="vistaDiccionario" aria-current="page">
-          <svg class="icono icono-libro" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <svg class="icono icono-libro" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
             <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
             <path d="M8 7h8"></path>
@@ -135,8 +148,7 @@
           <span>Diccionario</span>
         </button>
         <button type="button" class="boton-menu-movil" data-vista="vistaAnatomia">
-          <svg class="icono icono-robot" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <svg class="icono icono-robot" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <rect x="3" y="11" width="18" height="10" rx="2"></rect>
             <circle cx="12" cy="5" r="2"></circle>
             <path d="M12 7v4"></path>
@@ -147,31 +159,30 @@
           <span>Robot y Área</span>
         </button>
         <button type="button" class="boton-menu-movil" data-vista="vistaSimulador">
-          <svg class="icono icono-rayo" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <svg class="icono icono-rayo" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
           <span>Probador Lógico</span>
         </button>
         <button type="button" class="boton-menu-movil" data-vista="vistaPlantilla">
-          <svg class="icono icono-documento" viewBox="0 0 24 24" width="18" height="18" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-            focusable="false">
+          <svg class="icono icono-documento" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
             <polyline points="14 2 14 8 20 8"></polyline>
             <line x1="16" y1="13" x2="8" y2="13"></line>
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          <span>Plantilla Base</span>
+          <span>Plantillas</span>
         </button>
       </div>
+      <div class="menu-movil-separador" aria-hidden="true"></div>
+      <div class="titulo-popover-paleta">Paleta de colores</div>
+      <div class="menu-movil-paletas" id="selectorPaletasMovil" role="group" aria-label="Paletas de colores"></div>
       <div class="menu-movil-separador" aria-hidden="true"></div>
       <div class="menu-movil-pie">
         <button type="button" class="boton-menu-movil boton-tema-movil" id="botonTemaMovil" aria-label="Cambiar a tema oscuro">
           <span class="icono-tema-movil" id="iconoTemaMovil" aria-hidden="true">
-            <svg class="icono icono-luna" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+            <svg class="icono icono-luna" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
               <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
             </svg>
           </span>
@@ -181,38 +192,44 @@
     </nav>
   </header>
 
-  <!-- Telón de fondo para cerrar el menú móvil al hacer clic fuera -->
   <div class="telon-menu-movil" id="telonMenuMovil" aria-hidden="true"></div>
 
   <main>
     <!-- VISTA 1: DICCIONARIO -->
     <section id="vistaDiccionario" class="seccion-vista activa" aria-labelledby="tituloHeroDiccionario">
-      <!-- Sección Hero estilo DeepSeek -->
-      <div class="hero-deepseek">
-        <div class="banner-anuncio" role="region" aria-label="Novedades de la plataforma">
-          <span>R-Info UNLP · Plataforma interactiva de referencia, memoria y concurrencia</span>
+      <div class="hero-principal">
+        <div class="banner-anuncio">
+          <span class="punto-estado" aria-hidden="true"></span>
+          <span>R-Info UNLP · Diccionario interactivo, anatomía visual y lógica</span>
         </div>
-        <h1 id="tituloHeroDiccionario" class="titulo-hero">Explorá el Lenguaje R-Info</h1>
+        <h1 id="tituloHeroDiccionario" class="titulo-hero">
+          Explorá el Lenguaje <span class="texto-degradado">R-Info</span>
+        </h1>
         <p class="subtitulo-hero">
-          Buscá palabras reservadas, descubrí la anatomía interna de robots y áreas, y evaluá expresiones lógicas en
-          vivo.
+          Buscá palabras reservadas sin preocuparte por tildes, explorá la arquitectura de robots y áreas, y probá condiciones en vivo.
         </p>
 
-        <!-- Tarjeta de Búsqueda Grande estilo DeepSeek -->
-        <div class="tarjeta-busqueda-deepseek">
+        <!-- Tarjeta de Búsqueda -->
+        <div class="tarjeta-busqueda">
           <div class="area-campo-busqueda">
             <span class="icono-busqueda-interior" aria-hidden="true">
-              <svg class="icono icono-lupa" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor"
-                stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+              <svg class="icono icono-lupa" viewBox="0 0 24 24" width="20" height="20">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
             </span>
-            <input type="text" id="entradaBusqueda" class="entrada-busqueda-deepseek"
+            <input type="text" id="entradaBusqueda" class="entrada-busqueda"
               placeholder="Buscar primitiva, sensor, instrucción o qué hace..." autocomplete="off"
               aria-label="Buscar palabra clave o concepto" />
+            <button type="button" class="boton-limpiar-busqueda" id="botonLimpiarBusqueda" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" hidden>
+              <svg class="icono" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
           </div>
-          <div class="pie-busqueda-deepseek">
+
+          <div class="pie-busqueda">
             <div class="selector-alcance" role="group" aria-label="Filtrar por alcance de R-Info">
               <button type="button" class="boton-alcance activa" data-alcance="todos" aria-pressed="true">
                 <span class="texto-completo">Todo R-Info</span>
@@ -227,97 +244,110 @@
                 <span class="texto-abreviado">Extendido</span>
               </button>
             </div>
-            <div class="acciones-busqueda-deepseek">
+            <div class="acciones-busqueda">
               <span class="tecla-atajo" aria-hidden="true" title="Atajo de teclado">/</span>
-              <button type="button" class="boton-circular-accion" id="botonLimpiarOBuscar"
-                aria-label="Ir a resultados o enfocar búsqueda" title="Ir a resultados">
-                <svg class="icono icono-flecha-arriba" viewBox="0 0 24 24" width="18" height="18" fill="none"
-                  stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"
-                  aria-hidden="true" focusable="false">
-                  <line x1="12" y1="19" x2="12" y2="5"></line>
-                  <polyline points="5 12 12 5 19 12"></polyline>
+              <button type="button" class="boton-circular-accion" id="botonIrResultados"
+                aria-label="Desplazar hacia los resultados" title="Ir a resultados">
+                <svg class="icono" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true">
+                  <line x1="12" y1="5" x2="12" y2="19"></line>
+                  <polyline points="19 12 12 19 5 12"></polyline>
                 </svg>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- Píldoras de Acceso Rápido estilo DeepSeek -->
-        <div class="accesos-rapidos-deepseek" role="group" aria-label="Accesos directos a secciones">
-          <button type="button" class="pildora-acceso" data-vista="vistaDiccionario">
-            <svg class="icono icono-libro" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"></path>
-              <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"></path>
-              <path d="M8 7h8"></path>
-              <path d="M8 11h6"></path>
-            </svg>
-            <span>Diccionario Completo</span>
-          </button>
-          <button type="button" class="pildora-acceso" data-vista="vistaAnatomia">
-            <svg class="icono icono-robot" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <rect x="3" y="11" width="18" height="10" rx="2"></rect>
-              <circle cx="12" cy="5" r="2"></circle>
-              <path d="M12 7v4"></path>
-              <line x1="8" y1="16" x2="8" y2="16.01"></line>
-              <line x1="16" y1="16" x2="16" y2="16.01"></line>
-              <path d="M9 19h6"></path>
-            </svg>
-            <span>Anatomía del Robot</span>
-          </button>
-          <button type="button" class="pildora-acceso" data-vista="vistaSimulador">
-            <svg class="icono icono-rayo" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-              <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-            </svg>
-            <span>Probador Lógico</span>
-          </button>
-          <button type="button" class="pildora-acceso" data-vista="vistaPlantilla">
-            <svg class="icono icono-documento" viewBox="0 0 24 24" width="16" height="16" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"
-              focusable="false">
-              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-              <polyline points="14 2 14 8 20 8"></polyline>
-              <line x1="16" y1="13" x2="8" y2="13"></line>
-              <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>
-            <span>Plantilla Base</span>
-          </button>
+        <!-- Acceso directo a conceptos más consultados -->
+        <div class="bloque-frecuentes" aria-label="Consultas rápidas">
+          <div class="cabecera-frecuentes">
+            <span class="etiqueta-frecuentes">
+              <svg class="icono" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
+              </svg>
+              <span>Consultas rápidas</span>
+            </span>
+            <span class="ayuda-frecuentes">Abre el detalle sin filtrar tu lista</span>
+          </div>
+          <div class="sugerencias-busqueda" id="sugerenciasRapidas" role="group" aria-label="Palabras clave frecuentes">
+            <button type="button" class="pildora-sugerencia" data-sugerencia="tomarFlor">tomarFlor</button>
+            <button type="button" class="pildora-sugerencia" data-sugerencia="HayFlorEnLaEsquina">HayFlorEnLaEsquina</button>
+            <button type="button" class="pildora-sugerencia" data-sugerencia="mientras">mientras</button>
+            <button type="button" class="pildora-sugerencia" data-sugerencia="PosAv">PosAv</button>
+            <button type="button" class="pildora-sugerencia" data-sugerencia="AreaC">AreaC</button>
+            <button type="button" class="pildora-sugerencia" data-sugerencia="BloquearEsquina">BloquearEsquina</button>
+          </div>
         </div>
       </div>
 
-      <!-- Filtros por categoría y barra de información -->
+      <!-- Barra de filtros responsiva (chips en escritorio, lista desplegable en móvil) -->
       <div class="controles-filtros">
-        <div class="filtros" id="filtrosCategoria" role="group" aria-label="Filtrar por categoría"></div>
+        <div class="barra-filtros-superior">
+          <div class="filtros-escritorio">
+            <div class="filtros" id="filtrosCategoria" role="group" aria-label="Filtrar por categoría"></div>
+          </div>
+
+          <div class="filtro-movil-menu" id="contenedorFiltroMovil">
+            <button
+              type="button"
+              class="boton-desplegable-filtro"
+              id="botonMenuCategorias"
+              aria-expanded="false"
+              aria-controls="menuCategoriasMovil"
+            >
+              <span class="texto-boton-filtro">
+                <span class="prefijo-filtro">Categoría:</span>
+                <strong id="etiquetaCategoriaActiva">Todas (50)</strong>
+              </span>
+              <svg class="icono icono-chevron" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+
+            <div class="menu-lista-filtros" id="menuCategoriasMovil" role="listbox" aria-label="Seleccionar categoría" hidden></div>
+          </div>
+
+          <label class="selector-orden-wrapper" for="selectorOrden">
+            <span class="etiqueta-orden">Orden</span>
+            <select id="selectorOrden" class="selector-orden" aria-label="Ordenar palabras clave">
+              <option value="logico">Relevancia / R-Info</option>
+              <option value="az">Alfabético (A → Z)</option>
+              <option value="za">Alfabético (Z → A)</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="filtros-activos-barra" id="barraFiltrosActivos" hidden>
+          <span class="etiqueta-filtros-activos">Filtros activos:</span>
+          <div class="lista-filtros-activos" id="listaFiltrosActivos"></div>
+          <button type="button" class="boton sutil" id="botonRestablecerFiltros" hidden>Restablecer filtros</button>
+        </div>
       </div>
 
       <div class="barra-informacion">
-        <span id="etiquetaCantidad" aria-live="polite">Mostrando 0 elementos</span>
-        <span class="aviso-sintaxis"><svg class="icono icono-advertencia" viewBox="0 0 24 24" width="16" height="16"
-            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-            aria-hidden="true" focusable="false">
+        <div class="estado-conteo">
+          <span id="etiquetaCantidad" aria-live="polite">Mostrando 0 elementos</span>
+        </div>
+        <span class="aviso-sintaxis">
+          <svg class="icono icono-advertencia" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
             <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
             <line x1="12" y1="9" x2="12" y2="13"></line>
             <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg> Sintaxis <strong>sensible a mayúsculas y minúsculas</strong>: respetá mayúsculas y minúsculas
-          exactas.</span>
+          </svg>
+          <span class="texto-completo">Sintaxis <strong>sensible a mayúsculas y minúsculas</strong>.</span>
+          <span class="texto-abreviado"><strong>Mayús/minús</strong> exactas</span>
+        </span>
       </div>
 
       <section class="cuadricula" id="cuadriculaTarjetas" aria-label="Tarjetas del diccionario"></section>
     </section>
 
     <!-- VISTA 2: ANATOMÍA DE ROBOT Y ÁREA -->
-    <section id="vistaAnatomia" class="seccion-vista" aria-labelledby="tituloAnatomia">
+    <section id="vistaAnatomia" class="seccion-vista" aria-labelledby="tituloAnatomia" aria-hidden="true">
       <div class="presentacion-anatomia">
         <div>
           <h2 id="tituloAnatomia">¿Qué trae un Robot y un Área por defecto?</h2>
           <p>
-            Cuando declarás un <code>robot</code> y un <code>area</code> en R-Info, el entorno ya crea internamente
-            partes, sensores, valores iniciales y reglas. Elegí cualquier componente de la izquierda para ver
-            exactamente
-            qué tiene por defecto y cómo se controla.
+            Cuando declarás un <code>robot</code> y un <code>area</code> en R-Info, el entorno crea internamente sensores, bolsa, orientación y límites. Seleccioná un componente para ver su estado inicial y cómo controlarlo.
           </p>
         </div>
         <span class="distintivo basico">Modelo Abstracto R-Info</span>
@@ -325,68 +355,109 @@
 
       <div class="distribucion-anatomia">
         <aside class="menu-partes" id="menuPartes" aria-label="Partes y componentes de R-Info"></aside>
-        <article class="detalle-parte" id="detalleParte" aria-label="Detalle del componente seleccionado"
-          aria-live="polite"></article>
+        <article class="detalle-parte" id="detalleParte" aria-label="Detalle del componente seleccionado" aria-live="polite"></article>
       </div>
 
-      <!-- Ciclo de Vida Interactivo -->
+      <!-- Ciclo de Vida Interactivo + Esquema Visual -->
       <section class="tarjeta-ciclo-vida" aria-labelledby="tituloCicloVida">
         <div class="cabecera-ciclo-vida">
           <div>
             <h3 id="tituloCicloVida" class="titulo-ciclo-vida">Ciclo de creación: ¿En qué momento nace cada cosa?</h3>
-            <p class="subtitulo-ciclo-vida">Hacé clic en cada etapa para entender qué se crea en memoria y en el mapa.
-            </p>
+            <p class="subtitulo-ciclo-vida">Recorré los 5 pasos para ver qué ocurre en la memoria del robot y en la ciudad 100×100.</p>
+          </div>
+          <div class="controles-etapas-ciclo">
+            <button type="button" class="boton sutil" id="botonPasoAnterior">← Anterior</button>
+            <button type="button" class="boton sutil" id="botonPasoSiguiente">Siguiente →</button>
           </div>
         </div>
 
         <div class="etapas-ciclo-vida" id="etapasCicloVida" role="group" aria-label="Etapas del ciclo de vida"></div>
         <div class="salida-ciclo-vida" id="salidaCicloVida" aria-live="polite"></div>
+        <div class="panel-esquema-ciclo" id="esquemaCicloVida" aria-live="polite"></div>
       </section>
     </section>
 
     <!-- VISTA 3: PROBADOR LÓGICO (SIMULADOR) -->
-    <section id="vistaSimulador" class="seccion-vista" aria-labelledby="tituloSimulador">
+    <section id="vistaSimulador" class="seccion-vista" aria-labelledby="tituloSimulador" aria-hidden="true">
       <div class="panel">
         <div class="cabecera-panel">
           <div>
             <h2 id="tituloSimulador" class="titulo-panel">Simulador de Condiciones Lógicas en R-Info</h2>
             <p class="subtitulo-panel">
-              Probá proposiciones moleculares con <code>~</code>, <code>&amp;</code>, <code>|</code> y comparaciones
-              antes de escribir tu <code>si</code> o <code>mientras</code>.
+              Probá expresiones con <code>~</code>, <code>&amp;</code>, <code>|</code> y operadores relacionales antes de usarlas en un <code>si</code> o <code>mientras</code>.
             </p>
           </div>
+          <span class="distintivo extendido">Precedencia: ~ primero, &amp; y | igual nivel</span>
         </div>
+
         <div class="cuadricula-simulador">
           <div class="lista-interruptores" role="group" aria-label="Estado actual de sensores y coordenadas">
             <label class="elemento-interruptor" for="sensorFlorEsquina">
-              <span>HayFlorEnLaEsquina</span>
-              <input type="checkbox" id="sensorFlorEsquina" checked />
+              <span class="nombre-sensor">HayFlorEnLaEsquina</span>
+              <span class="interruptor-control">
+                <span class="insignia-booleana" id="valorFlorEsquina">V</span>
+                <input type="checkbox" id="sensorFlorEsquina" checked />
+              </span>
             </label>
             <label class="elemento-interruptor" for="sensorPapelEsquina">
-              <span>HayPapelEnLaEsquina</span>
-              <input type="checkbox" id="sensorPapelEsquina" />
+              <span class="nombre-sensor">HayPapelEnLaEsquina</span>
+              <span class="interruptor-control">
+                <span class="insignia-booleana" id="valorPapelEsquina">F</span>
+                <input type="checkbox" id="sensorPapelEsquina" />
+              </span>
             </label>
             <label class="elemento-interruptor" for="sensorFlorBolsa">
-              <span>HayFlorEnLaBolsa</span>
-              <input type="checkbox" id="sensorFlorBolsa" checked />
+              <span class="nombre-sensor">HayFlorEnLaBolsa</span>
+              <span class="interruptor-control">
+                <span class="insignia-booleana" id="valorFlorBolsa">V</span>
+                <input type="checkbox" id="sensorFlorBolsa" checked />
+              </span>
             </label>
             <label class="elemento-interruptor" for="sensorPapelBolsa">
-              <span>HayPapelEnLaBolsa</span>
-              <input type="checkbox" id="sensorPapelBolsa" />
+              <span class="nombre-sensor">HayPapelEnLaBolsa</span>
+              <span class="interruptor-control">
+                <span class="insignia-booleana" id="valorPapelBolsa">F</span>
+                <input type="checkbox" id="sensorPapelBolsa" />
+              </span>
             </label>
-            <label class="elemento-interruptor" for="sensorAvenida">
-              <span>PosAv (1..100)</span>
-              <input type="number" id="sensorAvenida" min="1" max="100" value="1" />
-            </label>
-            <label class="elemento-interruptor" for="sensorCalle">
-              <span>PosCa (1..100)</span>
-              <input type="number" id="sensorCalle" min="1" max="100" value="1" />
-            </label>
+            <div class="elemento-interruptor">
+              <label class="nombre-sensor" for="sensorAvenida">PosAv (1..100)</label>
+              <div class="control-coordenada">
+                <button type="button" class="boton-paso-coord" data-coord="sensorAvenida" data-delta="-1" aria-label="Disminuir avenida">−</button>
+                <input type="number" id="sensorAvenida" min="1" max="100" value="1" />
+                <button type="button" class="boton-paso-coord" data-coord="sensorAvenida" data-delta="1" aria-label="Aumentar avenida">+</button>
+              </div>
+            </div>
+            <div class="elemento-interruptor">
+              <label class="nombre-sensor" for="sensorCalle">PosCa (1..100)</label>
+              <div class="control-coordenada">
+                <button type="button" class="boton-paso-coord" data-coord="sensorCalle" data-delta="-1" aria-label="Disminuir calle">−</button>
+                <input type="number" id="sensorCalle" min="1" max="100" value="1" />
+                <button type="button" class="boton-paso-coord" data-coord="sensorCalle" data-delta="1" aria-label="Aumentar calle">+</button>
+              </div>
+            </div>
           </div>
+
           <div class="caja-expresion">
             <label for="entradaExpresion" class="etiqueta-expresion">Expresión en sintaxis R-Info:</label>
             <input type="text" id="entradaExpresion" class="entrada-expresion"
               value="(HayFlorEnLaEsquina &amp; ~HayPapelEnLaEsquina) &amp; (PosCa &lt; 100)" autocomplete="off" />
+
+            <!-- Inserción rápida de tokens R-Info -->
+            <div class="paleta-tokens-simulador" id="paletaTokensSimulador" role="group" aria-label="Insertar operadores o sensores R-Info">
+              <button type="button" class="token-rapido" data-token="~">~ (NO)</button>
+              <button type="button" class="token-rapido" data-token=" &amp; ">&amp; (Y)</button>
+              <button type="button" class="token-rapido" data-token=" | ">| (O)</button>
+              <button type="button" class="token-rapido" data-token=" = ">=</button>
+              <button type="button" class="token-rapido" data-token=" &lt;&gt; ">&lt;&gt;</button>
+              <button type="button" class="token-rapido" data-token=" &lt; ">&lt;</button>
+              <button type="button" class="token-rapido" data-token=" &gt; ">&gt;</button>
+              <button type="button" class="token-rapido" data-token="()">( )</button>
+              <button type="button" class="token-rapido" data-token="HayFlorEnLaEsquina">HayFlorEnLaEsquina</button>
+              <button type="button" class="token-rapido" data-token="PosCa">PosCa</button>
+              <button type="button" class="token-rapido" data-token="PosAv">PosAv</button>
+            </div>
+
             <div class="botones-predefinidos" role="group" aria-label="Expresiones predefinidas">
               <button type="button" class="ficha" data-accion="establecer-predefinida"
                 data-expresion="~(HayFlorEnLaEsquina | HayPapelEnLaEsquina)">Esquina vacía</button>
@@ -397,64 +468,40 @@
               <button type="button" class="ficha" data-accion="establecer-predefinida"
                 data-expresion="PosAv = PosCa">Diagonal (Av = Ca)</button>
             </div>
-            <div id="resultadoExpresion" class="resultado-expresion verdadero" aria-live="polite">
-              <span>Resultado: V (Verdadero)</span>
-              <small>Prioridad: ~ luego &amp; y |</small>
-            </div>
+
+            <div id="resultadoExpresion" class="resultado-expresion verdadero" aria-live="polite"></div>
+            <div id="desgloseExpresion" class="desglose-evaluacion" aria-live="polite"></div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- VISTA 4: PLANTILLA BASE -->
-    <section id="vistaPlantilla" class="seccion-vista" aria-labelledby="tituloPlantilla">
+    <!-- VISTA 4: PLANTILLAS BASE -->
+    <section id="vistaPlantilla" class="seccion-vista" aria-labelledby="tituloPlantilla" aria-hidden="true">
       <div class="panel">
         <div class="cabecera-panel">
           <div>
-            <h2 id="tituloPlantilla" class="titulo-panel">Estructura Base de un Programa en R-Info</h2>
+            <h2 id="tituloPlantilla" class="titulo-panel">Plantillas y Estructura Base en R-Info</h2>
             <p class="subtitulo-panel">
-              Recordá: el lenguaje es <strong>sensible a mayúsculas y minúsculas</strong> y exige <strong>indentación de
-                2 espacios</strong> por bloque.
+              Recordá: el lenguaje es <strong>sensible a mayúsculas y minúsculas</strong> y exige <strong>indentación de 2 espacios</strong> por bloque.
             </p>
           </div>
-          <button type="button" class="boton principal" data-accion="copiar-plantilla" data-action="copiar-plantilla">
-            <svg class="icono icono-copiar" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-              stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <button type="button" class="boton principal" data-accion="copiar-plantilla">
+            <svg class="icono icono-copiar" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
               <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
               <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
             </svg>
             <span>Copiar plantilla</span>
           </button>
         </div>
-        <pre class="bloque-codigo" id="codigoPlantilla">programa MiPrograma
-procesos
-  proceso JuntarFlores
-  comenzar
-    mientras (HayFlorEnLaEsquina)
-      tomarFlor
-  fin
-areas
-  ciudad: AreaC(1,1,100,100)
-robots
-  robot robot1
-  variables
-    cant: numero
-  comenzar
-    cant := 0
-    JuntarFlores
-    Informar(PosAv, PosCa)
-  fin
-variables
-  Rinfo: robot1
-comenzar
-  AsignarArea(Rinfo, ciudad)
-  Iniciar(Rinfo, 1, 1)
-fin</pre>
+
+        <div class="selector-plantillas" id="selectorPlantillas" role="group" aria-label="Elegir plantilla de R-Info"></div>
+        <div id="contenedorCodigoPlantilla"></div>
+        <div class="reglas-sintaxis-grid" id="reglasSintaxisPlantilla"></div>
       </div>
     </section>
   </main>
 
-  <!-- Pie de página responsive estilo DeepSeek -->
   <footer class="pie-pagina">
     <div class="pie-pagina-interno">
       <div class="marca-pie">
@@ -471,34 +518,50 @@ fin</pre>
     </div>
   </footer>
 
-  <!-- Ventana Modal de Detalle para Palabras Clave -->
-  <div class="fondo-modal" id="fondoModal" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="tituloModal"
-      aria-describedby="descripcionModal">
-      <div class="cabecera-tarjeta">
-        <div>
+  <!-- Diálogo Flotante Accesible para Palabras Clave -->
+  <dialog class="modal-dialogo" id="modalDetalle" aria-labelledby="tituloModal" aria-describedby="descripcionModal">
+    <div class="modal-cabecera">
+      <div class="modal-titulo-grupo">
+        <div class="modal-titulo-fila">
           <span class="palabra-clave" id="tituloModal"></span>
-          <div class="etiqueta-categoria" id="categoriaModal"></div>
+          <span class="distintivo" id="alcanceModal"></span>
         </div>
-        <button type="button" class="boton boton-cerrar-modal" id="botonCerrarModal" data-accion="cerrar-modal"
-          aria-label="Cerrar modal">
-          <svg class="icono icono-cerrar" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
-        </button>
+        <div class="etiqueta-categoria" id="categoriaModal"></div>
       </div>
+      <button type="button" class="boton boton-cerrar-modal" id="botonCerrarModal" aria-label="Cerrar diálogo">
+        <svg class="icono icono-cerrar" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <div class="modal-cuerpo" id="modalCuerpo">
       <p id="descripcionModal" class="descripcion-modal"></p>
-      <div>
-        <div class="etiqueta-seccion">Sintaxis y ejemplo</div>
-        <pre class="bloque-codigo" id="ejemploModal"></pre>
+
+      <div class="bloque-sintaxis-modal">
+        <div class="etiqueta-seccion">Sintaxis oficial</div>
+        <div class="vista-sintaxis" id="sintaxisModal"></div>
       </div>
+
+      <div class="bloque-ejemplo-modal">
+        <div class="etiqueta-seccion">Ejemplo en R-Info</div>
+        <div id="ejemploModalContenedor"></div>
+      </div>
+
       <div class="caja-nota" id="notaModal"></div>
-      <div class="pie-modal">
+    </div>
+
+    <div class="pie-modal">
+      <div class="navegacion-modal">
+        <button type="button" class="boton sutil" id="botonAnteriorModal">← Anterior</button>
+        <span class="contador-modal" id="contadorModal" aria-live="polite"></span>
+        <button type="button" class="boton sutil" id="botonSiguienteModal">Siguiente →</button>
+      </div>
+      <div class="acciones-modal">
+        <button type="button" class="boton sutil" id="botonProbarSimulador" hidden>Probar en Simulador</button>
         <button type="button" class="boton principal" id="botonCopiarModal">
-          <svg class="icono icono-copiar" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor"
-            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">
+          <svg class="icono icono-copiar" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
             <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
             <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
           </svg>
@@ -506,9 +569,8 @@ fin</pre>
         </button>
       </div>
     </div>
-  </div>
+  </dialog>
 
-  <!-- Inicialización de JavaScript Modular -->
   <script type="module" src="assets/js/principal.js"></script>
 </body>
 
