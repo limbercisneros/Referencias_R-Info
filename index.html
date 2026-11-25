@@ -197,17 +197,20 @@
   <main>
     <!-- VISTA 1: DICCIONARIO -->
     <section id="vistaDiccionario" class="seccion-vista activa" aria-labelledby="tituloHeroDiccionario">
+      <h1 id="tituloHeroDiccionario" class="solo-lector">Diccionario interactivo del lenguaje R-Info (UNLP)</h1>
       <div class="hero-principal">
-        <div class="banner-anuncio">
-          <span class="punto-estado" aria-hidden="true"></span>
-          <span>R-Info UNLP · Diccionario interactivo, anatomía visual y lógica</span>
+        <div class="identidad-hero">
+          <div class="icono-identidad-hero" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          </div>
+          <div class="meta-identidad">
+            <span class="etiqueta-contexto">Diccionario R-Info</span>
+            <span class="separador-contexto">·</span>
+            <span class="dato-contexto"><strong>50</strong> palabras clave</span>
+            <span class="separador-contexto">·</span>
+            <span class="dato-contexto"><strong>10</strong> categorías</span>
+          </div>
         </div>
-        <h1 id="tituloHeroDiccionario" class="titulo-hero">
-          Explorá el Lenguaje <span class="texto-degradado">R-Info</span>
-        </h1>
-        <p class="subtitulo-hero">
-          Buscá palabras reservadas sin preocuparte por tildes, explorá la arquitectura de robots y áreas, y probá condiciones en vivo.
-        </p>
 
         <!-- Tarjeta de Búsqueda -->
         <div class="tarjeta-busqueda">
@@ -500,6 +503,31 @@
         <div class="reglas-sintaxis-grid" id="reglasSintaxisPlantilla"></div>
       </div>
     </section>
+
+    <!-- Banner de recurso externo -->
+    <aside class="banner-recurso-externo" aria-label="Recurso complementario">
+      <div class="contenido-banner-externo">
+        <div class="info-banner-externo">
+          <div class="icono-banner-externo" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="20" height="20">
+              <polygon points="5 3 19 12 5 21 5 3"></polygon>
+            </svg>
+          </div>
+          <div>
+            <strong class="titulo-banner-externo">¿Querés ejecutar código R-Info en el navegador?</strong>
+            <p class="desc-banner-externo">Visual R-Info es un entorno web completo donde podés escribir, probar y ver tus robots en acción — sin instalar nada.</p>
+          </div>
+        </div>
+        <a href="https://rinfo.markski.ar/" target="_blank" rel="noopener noreferrer" class="boton-banner-externo">
+          <span>Abrir Visual R-Info</span>
+          <svg class="icono" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+        </a>
+      </div>
+    </aside>
   </main>
 
   <footer class="pie-pagina">
@@ -514,6 +542,16 @@
       <div class="info-pie">
         <p class="linea-info-primaria">Facultad de Informática · Universidad Nacional de La Plata</p>
         <p class="linea-info-secundaria">Referencia interactiva de palabras reservadas, memoria, robots y concurrencia</p>
+      </div>
+      <div class="enlaces-pie">
+        <a href="https://rinfo.markski.ar/" target="_blank" rel="noopener noreferrer" class="enlace-externo-pie">
+          <svg class="icono" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+            <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+            <polyline points="15 3 21 3 21 9"></polyline>
+            <line x1="10" y1="14" x2="21" y2="3"></line>
+          </svg>
+          <span>Visual R-Info — Entorno web</span>
+        </a>
       </div>
     </div>
   </footer>

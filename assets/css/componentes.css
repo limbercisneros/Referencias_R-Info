@@ -225,33 +225,64 @@
 }
 
 /* ==========================================================================
-   Hero y Buscador Principal
+   Hero y Buscador Principal — Diseño de herramienta, no landing page
    ========================================================================== */
 .hero-principal {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin: 0.6rem auto 1.65rem;
+  align-items: stretch;
+  margin: 0.4rem auto 1.5rem;
   max-inline-size: 860px;
   inline-size: 100%;
+  gap: 0.65rem;
 }
 
-.banner-anuncio {
-  display: inline-flex;
+.identidad-hero {
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0.32rem 0.9rem;
-  max-inline-size: 100%;
-  border-radius: var(--radio-pildora);
-  border: 1px solid var(--borde);
-  background: var(--superficie-traslucida);
-  backdrop-filter: blur(12px);
+  gap: 0.6rem;
+  padding: 0.4rem 0.15rem;
+}
+
+.icono-identidad-hero {
+  display: grid;
+  place-items: center;
+  inline-size: 32px;
+  block-size: 32px;
+  border-radius: 10px;
+  background: var(--acento-suave);
+  color: var(--texto-acento);
+  flex-shrink: 0;
+  border: 1px solid color-mix(in srgb, var(--acento) 30%, transparent);
+}
+
+.meta-identidad {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.25rem 0.5rem;
   font-size: 0.8rem;
-  font-weight: 500;
   color: var(--texto-suave);
-  margin-block-end: 0.9rem;
-  box-shadow: var(--sombra-pequena);
+}
+
+.etiqueta-contexto {
+  font-weight: 700;
+  color: var(--texto);
+  letter-spacing: -0.01em;
+}
+
+.separador-contexto {
+  color: var(--texto-tenue);
+}
+
+.dato-contexto strong {
+  color: var(--texto-acento);
+  font-weight: 700;
+}
+
+/* Banner anuncio (legacy, oculto si no se usa) */
+.banner-anuncio {
+  display: none;
 }
 
 .punto-estado {
@@ -264,12 +295,7 @@
 }
 
 .titulo-hero {
-  font-size: clamp(2rem, 4.6vw, 3.15rem);
-  font-weight: 800;
-  letter-spacing: -0.035em;
-  color: var(--texto);
-  line-height: 1.12;
-  margin-block-end: 0.55rem;
+  display: none;
 }
 
 .texto-degradado {
@@ -280,11 +306,7 @@
 }
 
 .subtitulo-hero {
-  font-size: clamp(0.94rem, 1.7vw, 1.08rem);
-  color: var(--texto-suave);
-  max-inline-size: 620px;
-  line-height: 1.52;
-  margin-block-end: 1.35rem;
+  display: none;
 }
 
 .tarjeta-busqueda {
@@ -515,21 +537,27 @@
 
 @media (max-width: 680px) {
   .hero-principal {
-    margin: 0.3rem auto 0.95rem;
+    margin: 0.25rem auto 0.85rem;
+    gap: 0.5rem;
   }
 
-  .banner-anuncio {
+  .identidad-hero {
+    gap: 0.45rem;
+  }
+
+  .icono-identidad-hero {
+    inline-size: 28px;
+    block-size: 28px;
+    border-radius: 8px;
+  }
+
+  .meta-identidad {
+    font-size: 0.74rem;
+  }
+
+  .separador-contexto:last-of-type,
+  .dato-contexto:last-of-type {
     display: none;
-  }
-
-  .titulo-hero {
-    font-size: clamp(1.65rem, 6.2vw, 2.2rem);
-    margin-block-end: 0.35rem;
-  }
-
-  .subtitulo-hero {
-    font-size: 0.86rem;
-    margin-block-end: 0.95rem;
   }
 
   .tarjeta-busqueda {
@@ -771,7 +799,9 @@ pre.bloque-codigo {
   border-radius: 16px;
   font-family: var(--fuente-monoespaciada);
   font-size: 0.85rem;
-  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   line-height: 1.6;
   tab-size: 2;
 }
@@ -905,7 +935,9 @@ dialog.modal-dialogo {
   max-inline-size: 680px;
   inline-size: calc(100% - 2rem);
   max-block-size: min(88vh, 88dvh);
-  overflow: hidden;
+  overflow-y: auto;
+  overflow-x: hidden;
+  overscroll-behavior: contain;
   padding: 0;
   box-shadow:
     0 28px 68px -12px rgba(0, 0, 0, 0.48),
@@ -939,17 +971,18 @@ dialog.modal-dialogo::backdrop {
 }
 
 .modal-cabecera {
-  position: relative;
+  position: sticky;
+  inset-block-start: 0;
   z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
   gap: 0.85rem;
-  padding: 1.1rem 1.45rem 0.95rem;
-  background: var(--superficie-traslucida);
-  backdrop-filter: blur(12px);
-  border-block-end: 1px solid var(--borde-suave);
-  box-shadow: 0 4px 14px -4px rgba(0, 0, 0, 0.12);
+  padding: 1rem 1.45rem 0.85rem;
+  background: color-mix(in srgb, var(--superficie-elevada) 60%, transparent);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-block-end: 1px solid color-mix(in srgb, var(--borde) 50%, transparent);
   flex-shrink: 0;
 }
 
@@ -969,14 +1002,10 @@ dialog.modal-dialogo::backdrop {
 }
 
 .modal-cuerpo {
-  flex: 1 1 auto;
-  min-block-size: 0;
-  overflow-y: auto;
   padding: 1.15rem 1.45rem;
   display: flex;
   flex-direction: column;
   gap: 1rem;
-  overscroll-behavior: contain;
 }
 
 .modal-cuerpo > * {
@@ -984,13 +1013,22 @@ dialog.modal-dialogo::backdrop {
 }
 
 .boton-cerrar-modal {
-  inline-size: 34px;
-  block-size: 34px;
+  inline-size: 32px;
+  block-size: 32px;
   padding: 0;
   border-radius: var(--radio-pildora);
   display: grid;
   place-items: center;
   flex-shrink: 0;
+  background: color-mix(in srgb, var(--texto) 10%, transparent);
+  color: var(--texto-suave);
+  transition: background-color var(--transicion-rapida), color var(--transicion-rapida), transform var(--transicion-rapida);
+}
+
+.boton-cerrar-modal:hover {
+  background: var(--fondo-peligro);
+  color: var(--texto-peligro);
+  transform: rotate(90deg);
 }
 
 .bloque-sintaxis-modal,
@@ -1001,18 +1039,19 @@ dialog.modal-dialogo::backdrop {
 }
 
 .pie-modal {
-  position: relative;
+  position: sticky;
+  inset-block-end: 0;
   z-index: 2;
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
   gap: 0.65rem;
-  padding: 0.9rem 1.45rem 1.05rem;
-  background: var(--superficie-traslucida);
-  backdrop-filter: blur(12px);
-  border-block-start: 1px solid var(--borde-suave);
-  box-shadow: 0 -4px 14px -4px rgba(0, 0, 0, 0.12);
+  padding: 0.85rem 1.45rem 0.95rem;
+  background: color-mix(in srgb, var(--superficie-elevada) 60%, transparent);
+  backdrop-filter: blur(16px) saturate(1.3);
+  -webkit-backdrop-filter: blur(16px) saturate(1.3);
+  border-block-start: 1px solid color-mix(in srgb, var(--borde) 50%, transparent);
   flex-shrink: 0;
 }
 
@@ -1297,5 +1336,157 @@ dialog.modal-dialogo::backdrop {
 
   .info-pie {
     text-align: left;
+  }
+}
+
+/* ==========================================================================
+   Banner de Recurso Externo (Visual R-Info)
+   ========================================================================== */
+.banner-recurso-externo {
+  margin-block-start: 2.5rem;
+  padding: 1.15rem 1.3rem;
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: var(--radio-grande);
+  box-shadow: var(--sombra);
+  transition: border-color var(--transicion-rapida), box-shadow var(--transicion-rapida);
+}
+
+.banner-recurso-externo:hover {
+  border-color: color-mix(in srgb, var(--acento) 45%, var(--borde));
+  box-shadow: var(--sombra), 0 0 0 1px color-mix(in srgb, var(--acento) 12%, transparent);
+}
+
+.contenido-banner-externo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.15rem;
+  flex-wrap: wrap;
+}
+
+.info-banner-externo {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.icono-banner-externo {
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  inline-size: 40px;
+  block-size: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--acento), var(--acento-secundario));
+  color: var(--texto-inverso);
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--acento) 28%, transparent);
+}
+
+.icono-banner-externo svg {
+  fill: currentColor;
+  stroke: none;
+}
+
+.titulo-banner-externo {
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--texto);
+  margin-block-end: 0.2rem;
+}
+
+.desc-banner-externo {
+  font-size: 0.82rem;
+  color: var(--texto-suave);
+  line-height: 1.48;
+}
+
+.boton-banner-externo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-shrink: 0;
+  padding: 0.56rem 1.15rem;
+  border-radius: var(--radio-pildora);
+  background: linear-gradient(135deg, var(--acento), color-mix(in srgb, var(--acento) 80%, var(--acento-secundario)));
+  color: var(--texto-inverso);
+  font-size: 0.84rem;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 3px 12px color-mix(in srgb, var(--acento) 28%, transparent);
+  transition: filter var(--transicion-rapida), box-shadow var(--transicion-rapida), transform var(--transicion-rapida);
+}
+
+.boton-banner-externo:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 6px 18px color-mix(in srgb, var(--acento) 36%, transparent);
+  transform: translateY(-1px);
+}
+
+.boton-banner-externo .icono {
+  stroke: currentColor;
+}
+
+/* Enlace externo en el pie */
+.enlaces-pie {
+  display: flex;
+  align-items: center;
+}
+
+.enlace-externo-pie {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.38rem 0.85rem;
+  border-radius: var(--radio-pildora);
+  border: 1px solid var(--borde);
+  background: var(--superficie);
+  color: var(--texto-suave);
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all var(--transicion-rapida);
+}
+
+.enlace-externo-pie:hover {
+  border-color: var(--acento);
+  color: var(--texto-acento);
+  background: var(--acento-suave);
+}
+
+@media (max-width: 768px) {
+  .contenido-banner-externo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.85rem;
+  }
+
+  .boton-banner-externo {
+    inline-size: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .banner-recurso-externo {
+    padding: 0.95rem 1rem;
+    border-radius: 20px;
+  }
+
+  .icono-banner-externo {
+    inline-size: 34px;
+    block-size: 34px;
+    border-radius: 10px;
+  }
+
+  .titulo-banner-externo {
+    font-size: 0.85rem;
+  }
+
+  .desc-banner-externo {
+    font-size: 0.78rem;
   }
 }

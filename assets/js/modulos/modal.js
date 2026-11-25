@@ -63,6 +63,9 @@ function actualizarContenidoDialogo() {
   if (cuerpoModal) {
     cuerpoModal.scrollTop = 0;
   }
+  // También resetear scroll del diálogo (el contenedor scrollable real)
+  const dialogo = seleccionar("#modalDetalle");
+  if (dialogo) dialogo.scrollTop = 0;
   if (contadorModal) {
     contadorModal.textContent = listaActual.length > 1 ? `${indiceActual + 1} / ${listaActual.length}` : "";
   }
