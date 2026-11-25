@@ -1,21 +1,29 @@
 /**
- * Módulo de navegación entre vistas, menú hamburguesa móvil y atajos de teclado globales.
+ * Módulo de navegación entre vistas, sincronización de hash URL, menú móvil y atajos.
  */
 import { seleccionar, seleccionarTodos } from "./dom.js";
 
 const observadoresCambioVista = new Set();
 
-/**
- * Registra un observador que se ejecutará cada vez que cambie la vista activa.
- * @param {(identificadorVista: string) => void} observador
- */
+const VISTAS_POR_HASH = {
+  "#diccionario": "vistaDiccionario",
+  "#anatomia": "vistaAnatomia",
+  "#simulador": "vistaSimulador",
+  "#plantillas": "vistaPlantilla",
+  "#plantilla": "vistaPlantilla"
+};
+
+const HASH_POR_VISTA = {
+  vistaDiccionario: "#diccionario",
+  vistaAnatomia: "#anatomia",
+  vistaSimulador: "#simulador",
+  vistaPlantilla: "#plantillas"
+};
+
 export function alCambiarVista(observador) {
   observadoresCambioVista.add(observador);
 }
 
-/**
- * Abre el menú desplegable móvil con accesibilidad y animación.
- */
 export function abrirMenuMovil() {
   const encabezado = seleccionar("#encabezadoPrincipal");
   const menuMovil = seleccionar("#menuMovil");
@@ -24,18 +32,16 @@ export function abrirMenuMovil() {
 
   if (!menuMovil || !botonHamburguesa) return;
 
-  if (encabezado) encabezado.classList.add("menu-abierto");
+  encabezado?.classList.add("menu-abierto");
   menuMovil.classList.add("abierto");
   botonHamburguesa.classList.add("abierto");
   botonHamburguesa.setAttribute("aria-expanded", "true");
   botonHamburguesa.setAttribute("aria-label", "Cerrar menú de navegación");
   menuMovil.setAttribute("aria-hidden", "false");
-  if (telon) telon.classList.add("activo");
+  telon?.classList.add("activo");
+  document.body.classList.add("menu-bloqueado");
 }
 
-/**
- * Cierra el menú desplegable móvil.
- */
 export function cerrarMenuMovil() {
   const encabezado = seleccionar("#encabezadoPrincipal");
   const menuMovil = seleccionar("#menuMovil");
@@ -44,22 +50,19 @@ export function cerrarMenuMovil() {
 
   if (!menuMovil || !botonHamburguesa) return;
 
-  if (encabezado) encabezado.classList.remove("menu-abierto");
+  encabezado?.classList.remove("menu-abierto");
   menuMovil.classList.remove("abierto");
   botonHamburguesa.classList.remove("abierto");
   botonHamburguesa.setAttribute("aria-expanded", "false");
   botonHamburguesa.setAttribute("aria-label", "Abrir menú de navegación");
   menuMovil.setAttribute("aria-hidden", "true");
-  if (telon) telon.classList.remove("activo");
+  telon?.classList.remove("activo");
+  document.body.classList.remove("menu-bloqueado");
 }
 
-/**
- * Alterna el estado abierto/cerrado del menú móvil.
- */
 export function alternarMenuMovil() {
   const menuMovil = seleccionar("#menuMovil");
   if (!menuMovil) return;
-
   if (menuMovil.classList.contains("abierto")) {
     cerrarMenuMovil();
   } else {
@@ -68,11 +71,14 @@ export function alternarMenuMovil() {
 }
 
 /**
- * Cambia la vista visible de la aplicación.
- * @param {string} identificadorVista Identificador del elemento de sección (ej: "vistaDiccionario")
+ * Cambia la vista visible de la aplicación y sincroniza el hash URL.
+ * @param {string} identificadorVista
+ * @param {{ actualizarHash?: boolean, desplazar?: boolean }} [opciones]
  */
-export function cambiarVista(identificadorVista) {
+export function cambiarVista(identificadorVista, { actualizarHash = true, desplazar = true } = {}) {
   const seccionesVista = seleccionarTodos(".seccion-vista");
+  if (!seccionesVista.some(s => s.id === identificadorVista)) return;
+
   const botonesNavegacion = seleccionarTodos(
     ".pestanas-navegacion .boton[data-vista], .boton-menu-movil[data-vista]"
   );
@@ -93,13 +99,19 @@ export function cambiarVista(identificadorVista) {
     }
   });
 
-  // Cerrar menú móvil si estaba desplegado
+  if (actualizarHash) {
+    const nuevoHash = HASH_POR_VISTA[identificadorVista];
+    if (nuevoHash && window.location.hash !== nuevoHash) {
+      history.replaceState(null, "", nuevoHash);
+    }
+  }
+
   cerrarMenuMovil();
 
-  // Desplazamiento suave al inicio de la página para que la nueva vista sea visible
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  if (desplazar) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
-  // Notificar a observadores registrados
   observadoresCambioVista.forEach(observador => {
     try {
       observador(identificadorVista);
@@ -109,50 +121,37 @@ export function cambiarVista(identificadorVista) {
   });
 }
 
-/**
- * Inicializa la barra de navegación, el menú móvil hamburguesa y el atajo de teclado "/".
- */
 export function inicializarNavegacion() {
   const botonHamburguesa = seleccionar("#botonMenuHamburguesa");
   const telon = seleccionar("#telonMenuMovil");
 
-  if (botonHamburguesa) {
-    botonHamburguesa.addEventListener("click", e => {
-      e.stopPropagation();
-      alternarMenuMovil();
-    });
-  }
+  botonHamburguesa?.addEventListener("click", e => {
+    e.stopPropagation();
+    alternarMenuMovil();
+  });
 
-  if (telon) {
-    telon.addEventListener("click", () => {
-      cerrarMenuMovil();
-    });
-  }
+  telon?.addEventListener("click", cerrarMenuMovil);
 
   document.addEventListener("click", e => {
     const elementoVista = e.target.closest("[data-vista]");
-    if (elementoVista && elementoVista.dataset.vista) {
+    if (elementoVista?.dataset.vista) {
       cambiarVista(elementoVista.dataset.vista);
       return;
     }
 
-    // Si hace clic fuera del encabezado y del menú móvil, cerrar el menú
     const menuMovil = seleccionar("#menuMovil");
     const encabezado = seleccionar("#encabezadoPrincipal");
-    if (menuMovil && menuMovil.classList.contains("abierto")) {
-      if (encabezado && !encabezado.contains(e.target)) {
-        cerrarMenuMovil();
-      }
+    if (menuMovil?.classList.contains("abierto") && encabezado && !encabezado.contains(e.target)) {
+      cerrarMenuMovil();
     }
   });
 
-  // Atajos de teclado: ESC para cerrar menú móvil, "/" para enfocar búsqueda
   document.addEventListener("keydown", e => {
     if (e.key === "Escape") {
       const menuMovil = seleccionar("#menuMovil");
-      if (menuMovil && menuMovil.classList.contains("abierto")) {
+      if (menuMovil?.classList.contains("abierto")) {
         cerrarMenuMovil();
-        if (botonHamburguesa) botonHamburguesa.focus();
+        botonHamburguesa?.focus();
         return;
       }
     }
@@ -172,10 +171,24 @@ export function inicializarNavegacion() {
     }
   });
 
-  // Si el usuario cambia el tamaño de ventana a escritorio, cerrar automáticamente el menú móvil
-  window.addEventListener("resize", () => {
-    if (window.innerWidth > 768) {
+  // Coincide exactamente con el breakpoint CSS (@media max-width: 900px)
+  const consultaEscritorio = window.matchMedia("(min-width: 901px)");
+  consultaEscritorio.addEventListener("change", evento => {
+    if (evento.matches) {
       cerrarMenuMovil();
+    }
+  });
+
+  // Navegación por hash URL al cargar o usar botones Atrás/Adelante
+  const vistaInicial = VISTAS_POR_HASH[window.location.hash];
+  if (vistaInicial) {
+    cambiarVista(vistaInicial, { actualizarHash: false, desplazar: false });
+  }
+
+  window.addEventListener("hashchange", () => {
+    const vista = VISTAS_POR_HASH[window.location.hash];
+    if (vista) {
+      cambiarVista(vista, { actualizarHash: false, desplazar: true });
     }
   });
 }
