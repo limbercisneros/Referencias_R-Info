@@ -243,7 +243,7 @@ export const DATOS_DICCIONARIO = [
     alcance: "basico",
     descripcion: "Identificador de solo lectura que devuelve el número de calle (1..100) en la que está posicionado el robot.",
     sintaxis: "PosCa",
-    ejemplo: "mientras (~HayFlorEnLaEsquina) & (PosCa < 100)\n  mover",
+    ejemplo: "mientras ((~HayFlorEnLaEsquina) & (PosCa < 100))\n  mover",
     nota: "Solo lectura. Muy útil como condición de corte para no caerse de la ciudad."
   },
   {
@@ -423,7 +423,7 @@ export const DATOS_DICCIONARIO = [
     alcance: "basico",
     descripcion: "Operador lógico Negación (NO). Invierte el valor de verdad de la proposición siguiente (V → F, F → V).",
     sintaxis: "~(proposicion)",
-    ejemplo: "mientras ~(HayFlorEnLaEsquina)\n  mover",
+    ejemplo: "mientras (~HayFlorEnLaEsquina)\n  mover",
     nota: "Es el operador lógico de MAYOR prioridad. '~p | q' equivale a '(~p) | q', distinto de '~(p | q)'."
   },
   {
