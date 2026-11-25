@@ -1,261 +1,293 @@
 /**
  * Variables y Tokens de Diseño - R-Info (UNLP)
  *
- * Esquema armónico 60-30-10:
+ * Incluye 4 paletas curadas de alto contraste, cada una con modo Claro y Oscuro:
+ *  1. cobalto (Predeterminada) — Blanco Porcelana / Obsidiana + Cobalto Eléctrico & Cian
+ *  2. indigo  — Índigo Eléctrico & Cian (estilo estudio editorial)
+ *  3. menta   — Menta Terminal & Esmeralda (estilo consola moderna)
+ *  4. coral   — Grafito & Coral Luminoso (contraste cálido de estudio)
  *
- * TEMA CLARO:
- * - 60%: Crema clásica (superficies dominantes, fondo y descanso visual)
- * - 30%: Verde abeto (estructura, lectura, encabezados, bordes y navegación)
- * - 10%: Rojo tomate (acciones clave, foco, interactividad y resaltados)
- *
- * TEMA OSCURO:
- * - 60%: Ciruela Eclipse (fondo general y superficies profundas)
- * - 30%: Seda Titanio (estructura, lectura clara, textos y metadatos)
- * - 10%: Destello Ámbar (acciones principales, acentos y foco vivo)
- *
- * Tipografía principal: Inter.
- * Nombres y variables en español.
+ * Usa CSS moderno (color-mix, propiedades semánticas unificadas) sin alias obsoletos.
  */
 
 :root {
-  /* Esquema de color base: informa al navegador qué temas soporta la app */
   color-scheme: light dark;
 
   /* ==========================================================================
-     Paleta Proporcional Tema Claro (60-30-10) en Español
+     Paleta 1 (Predeterminada): Cobalto Nórdico — Tema Claro
      ========================================================================== */
+  --fondo: #f5f7fc;
+  --superficie: #ffffff;
+  --superficie-elevada: #ffffff;
+  --superficie-alternativa: #ecf1f9;
+  --borde: #d8e1ee;
+  --borde-suave: #e7edf6;
 
-  /* --- 60% Crema Clásica: Fondos, Superficies y Paneles --- */
-  --color-crema-fondo: #fbf7ee;
-  --color-crema-superficie: #fffefb;
-  --color-crema-alternativa: #f2ebd9;
-  --color-crema-borde: #dfd3bd;
-  --color-crema-borde-suave: #ebe1ce;
+  --texto: #0f172a;
+  --texto-suave: #475569;
+  --texto-tenue: #64748b;
+  --texto-inverso: #ffffff;
 
-  /* --- 30% Verde Abeto: Estructura, Textos, Encabezados y Navegación --- */
-  --color-abeto-principal: #1b3b2b;
-  --color-abeto-profundo: #12281d;
-  --color-abeto-intermedio: #28543e;
-  --color-abeto-suave: #e6ede8;
-  --color-abeto-texto: #173224;
-  --color-abeto-texto-atenuado: #456151;
+  --acento: #2563eb;
+  --acento-al-pasar: #1d4ed8;
+  --acento-secundario: #0ea5e9;
+  --acento-suave: color-mix(in srgb, var(--acento) 11%, var(--superficie));
+  --texto-acento: #1d4ed8;
+  --borde-enfocado: var(--acento);
 
-  /* --- 10% Rojo Tomate: Botones de Acción, Enfoque y Resaltados --- */
-  --color-tomate-acento: #e03e2d;
-  --color-tomate-interaccion: #c53020;
-  --color-tomate-suave: #fdeee9;
-  --color-tomate-texto: #b52a1b;
+  /* --- Semántica y Distintivos --- */
+  --fondo-basico: #ecfdf5;
+  --borde-basico: #a7f3d0;
+  --texto-basico: #047857;
 
-  /* --- Bloques de Código --- */
-  --color-codigo-fondo: #102117;
-  --color-codigo-texto: #e8efe9;
+  --fondo-extendido: #f3e8ff;
+  --borde-extendido: #ddd6fe;
+  --texto-extendido: #6d28d9;
 
-  /* --- Distintivos y Estados Semánticos --- */
-  --color-basico-fondo: #e6ede8;
-  --color-basico-texto: #1b3b2b;
-  --color-extendido-fondo: #f3e8ff;
-  --color-extendido-texto: #6b21a8;
-  --color-advertencia-fondo: #fff8e8;
-  --color-advertencia-borde: #f4d896;
-  --color-advertencia-texto: #8a5203;
-  --color-peligro-fondo: #fee2e2;
-  --color-peligro-texto: #991b1b;
+  --fondo-advertencia: #fffbeb;
+  --borde-advertencia: #fcd34d;
+  --texto-advertencia: #92400e;
 
-  /* ==========================================================================
-     Mapeo de Variables Semánticas en Español
-     ========================================================================== */
-  --fondo: var(--color-crema-fondo);
-  --superficie: var(--color-crema-superficie);
-  --superficie-alternativa: var(--color-crema-alternativa);
-  --borde: var(--color-crema-borde);
-  --borde-enfocado: var(--color-tomate-acento);
+  --fondo-peligro: #fef2f2;
+  --borde-peligro: #fecaca;
+  --texto-peligro: #b91c1c;
 
-  --texto: var(--color-abeto-texto);
-  --texto-suave: var(--color-abeto-texto-atenuado);
-  --texto-inverso: #fffefb;
+  /* --- Bloques de Código y Resaltado de Sintaxis R-Info --- */
+  --fondo-codigo: #0b1120;
+  --borde-codigo: #1e293b;
+  --texto-codigo: #e2e8f0;
+  --codigo-cabecera: #11192e;
+  --cod-estructura: #c084fc;
+  --cod-control: #f472b6;
+  --cod-primitiva: #38bdf8;
+  --cod-sensor: #34d399;
+  --cod-numero: #fbbf24;
+  --cod-cadena: #a3e635;
+  --cod-comentario: #8292aa;
+  --cod-operador: #fb7185;
 
-  --acento: var(--color-tomate-acento);
-  --acento-al-pasar: var(--color-tomate-interaccion);
-  --acento-suave: var(--color-tomate-suave);
-  --texto-acento: var(--color-tomate-texto);
+  /* --- Superficies Translúcidas, Halo y Patrón de Fondo --- */
+  --fondo-traslucido: color-mix(in srgb, var(--superficie) 82%, transparent);
+  --superficie-traslucida: color-mix(in srgb, var(--superficie) 88%, transparent);
+  --borde-traslucido: color-mix(in srgb, var(--borde) 78%, transparent);
+  --malla-patron: rgba(15, 23, 42, 0.036);
+  --halo-radial:
+    radial-gradient(ellipse 80% 50% at 50% -10%, color-mix(in srgb, var(--acento) 12%, transparent), transparent 72%),
+    radial-gradient(ellipse 55% 45% at 88% 4%, color-mix(in srgb, var(--acento-secundario) 9%, transparent), transparent 68%);
 
-  --fondo-codigo: var(--color-codigo-fondo);
-  --texto-codigo: var(--color-codigo-texto);
+  /* --- Sombras calibradas al color de tinta --- */
+  --sombra-pequena: 0 1px 2px rgba(15, 23, 42, 0.05);
+  --sombra: 0 2px 8px -2px rgba(15, 23, 42, 0.07), 0 1px 3px rgba(15, 23, 42, 0.04);
+  --sombra-grande: 0 16px 36px -8px rgba(15, 23, 42, 0.14), 0 4px 12px -4px rgba(15, 23, 42, 0.06);
+  --sombra-foco: 0 12px 32px -6px color-mix(in srgb, var(--acento) 22%, transparent), 0 0 0 3px color-mix(in srgb, var(--acento) 18%, transparent);
+  --fondo-modal: rgba(8, 13, 28, 0.56);
 
-  --fondo-basico: var(--color-basico-fondo);
-  --texto-basico: var(--color-basico-texto);
-  --fondo-extendido: var(--color-extendido-fondo);
-  --texto-extendido: var(--color-extendido-texto);
-  --fondo-advertencia: var(--color-advertencia-fondo);
-  --borde-advertencia: var(--color-advertencia-borde);
-  --texto-advertencia: var(--color-advertencia-texto);
-  --fondo-peligro: var(--color-peligro-fondo);
-  --texto-peligro: var(--color-peligro-texto);
-
-  /* --- Superficies Translúcidas y Efecto Cristal (Estructura DeepSeek) --- */
-  --fondo-traslucido: rgba(251, 247, 238, 0.82);
-  --superficie-traslucida: rgba(255, 254, 251, 0.88);
-  --borde-traslucido: rgba(223, 211, 189, 0.75);
-  --malla-patron: rgba(27, 59, 43, 0.038);
-  --halo-radial: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(27, 59, 43, 0.06), transparent 70%);
-
-  /* --- Alias de Compatibilidad con Hojas de Estilo Existentes --- */
-  --textendidoo: var(--texto);
-  --textendidooo-suave: var(--texto-suave);
-  --textendidooo-inverso: var(--texto-inverso);
-  --textendidooo-acento: var(--texto-acento);
-  --textendidooo-codigo: var(--texto-codigo);
-  --textendidooo-basico: var(--texto-basico);
-  --fondo-extendidoendido: var(--fondo-extendido);
-  --textendidooo-extendidoendido: var(--texto-extendido);
-  --textendidooo-advertencia: var(--texto-advertencia);
-  --textendidooo-peligro: var(--texto-peligro);
-
-  --bg: var(--fondo);
-  --surface: var(--superficie);
-  --surface-alt: var(--superficie-alternativa);
-  --border: var(--borde);
-  --border-focus: var(--borde-enfocado);
-  --text: var(--texto);
-  --text-muted: var(--texto-suave);
-  --text-inverse: var(--texto-inverso);
-  --accent: var(--acento);
-  --accent-hover: var(--acento-al-pasar);
-  --accent-soft: var(--acento-suave);
-  --accent-text: var(--texto-acento);
-  --code-bg: var(--fondo-codigo);
-  --code-text: var(--texto-codigo);
-  --base-bg: var(--fondo-basico);
-  --base-text: var(--texto-basico);
-  --ext-bg: var(--fondo-extendido);
-  --ext-text: var(--texto-extendido);
-  --warn-bg: var(--fondo-advertencia);
-  --warn-border: var(--borde-advertencia);
-  --warn-text: var(--texto-advertencia);
-  --danger-bg: var(--fondo-peligro);
-  --danger-text: var(--texto-peligro);
-
-  /* --- Sombras --- */
-  --sombra-pequena: 0 1px 2px rgba(27, 59, 43, 0.05);
-  --sombra: 0 1px 4px rgba(27, 59, 43, 0.08), 0 1px 2px rgba(27, 59, 43, 0.04);
-  --sombra-grande: 0 12px 28px -6px rgba(27, 59, 43, 0.15);
-  --fondo-modal: rgba(18, 40, 29, 0.55);
-
-  --shadow-sm: var(--sombra-pequena);
-  --shadow: var(--sombra);
-  --shadow-lg: var(--sombra-grande);
-  --modal-backdrop-bg: var(--fondo-modal);
-
-  /* --- Radios de Borde (Opciones y Estructura Redondeada estilo DeepSeek) --- */
+  /* --- Radios --- */
   --radio-pequeno: 8px;
   --radio-mediano: 12px;
-  --radio: 20px;
-  --radio-grande: 26px;
+  --radio: 18px;
+  --radio-grande: 24px;
   --radio-pildora: 9999px;
 
-  --radius-sm: var(--radio-pequeno);
-  --radius-md: var(--radio-mediano);
-  --radius-lg: var(--radio-grande);
-  --radius-pill: var(--radio-pildora);
-
-  /* --- Tipografía (Inter como fuente primaria) --- */
+  /* --- Tipografía --- */
   --fuente-sin-serifa: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --fuente-monoespaciada: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  --font-sans: var(--fuente-sin-serifa);
-  --font-mono: var(--fuente-monoespaciada);
+  --fuente-monoespaciada: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
 
   /* --- Transiciones --- */
-  --transicion-rapida: 0.15s ease;
-  --transicion-normal: 0.2s ease;
-  --transition-fast: var(--transicion-rapida);
-  --transition-normal: var(--transicion-normal);
+  --transicion-rapida: 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  --transicion-normal: 0.24s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* ==========================================================================
-   Tema Oscuro (60-30-10):
-   - 60% Ciruela Eclipse: Fondo profundo, superficies nocturnas y paneles
-   - 30% Seda Titanio: Estructura, textos de lectura clara y bordes suaves
-   - 10% Destello Ámbar: Acentos interactivos, botones de acción y foco
+   Paleta 1: Cobalto Nórdico — Tema Oscuro
    ========================================================================== */
-[data-tema="oscuro"],
-[data-tema="dark"],
-[data-theme="dark"] {
+:root[data-tema="oscuro"] {
   color-scheme: dark;
 
-  /* --- 60% Ciruela Eclipse --- */
-  --color-ciruela-fondo: #130d1a;
-  --color-ciruela-superficie: #1d1427;
-  --color-ciruela-alternativa: #261b33;
-  --color-ciruela-borde: #372749;
-  --color-ciruela-borde-suave: #2d1f3d;
-  --color-ciruela-codigo: #0e0914;
+  --fondo: #060913;
+  --superficie: #0e1424;
+  --superficie-elevada: #131c31;
+  --superficie-alternativa: #162038;
+  --borde: #1f2d47;
+  --borde-suave: #172238;
 
-  /* --- 30% Seda Titanio --- */
-  --color-seda-principal: #3a2c50;
-  --color-seda-texto: #f0ecf5;
-  --color-seda-texto-atenuado: #aba2b8;
-  --color-seda-suave: rgba(240, 236, 245, 0.08);
+  --texto: #f1f5f9;
+  --texto-suave: #94a3b8;
+  --texto-tenue: #64748b;
+  --texto-inverso: #04111d;
 
-  /* --- 10% Destello Ámbar --- */
-  --color-ambar-acento: #f59e0b;
-  --color-ambar-interaccion: #fbbf24;
-  --color-ambar-suave: rgba(245, 158, 11, 0.18);
-  --color-ambar-texto: #fcd34d;
+  --acento: #38bdf8;
+  --acento-al-pasar: #7dd3fc;
+  --acento-secundario: #818cf8;
+  --acento-suave: color-mix(in srgb, var(--acento) 15%, var(--superficie));
+  --texto-acento: #7dd3fc;
 
-  /* --- Mapeo de Variables Semánticas para Modo Oscuro --- */
-  --fondo: var(--color-ciruela-fondo);
-  --superficie: var(--color-ciruela-superficie);
-  --superficie-alternativa: var(--color-ciruela-alternativa);
-  --borde: var(--color-ciruela-borde);
-  --borde-enfocado: var(--color-ambar-acento);
+  --fondo-basico: rgba(16, 185, 129, 0.15);
+  --borde-basico: rgba(52, 211, 153, 0.3);
+  --texto-basico: #34d399;
 
-  --texto: var(--color-seda-texto);
-  --texto-suave: var(--color-seda-texto-atenuado);
-  --texto-inverso: #130d1a;
+  --fondo-extendido: rgba(139, 92, 246, 0.18);
+  --borde-extendido: rgba(167, 139, 250, 0.32);
+  --texto-extendido: #c4b5fd;
 
-  --acento: var(--color-ambar-acento);
-  --acento-al-pasar: var(--color-ambar-interaccion);
-  --acento-suave: var(--color-ambar-suave);
-  --texto-acento: var(--color-ambar-texto);
-
-  --fondo-codigo: var(--color-ciruela-codigo);
-  --texto-codigo: var(--color-seda-texto);
-
-  --fondo-basico: var(--color-ambar-suave);
-  --texto-basico: var(--color-ambar-texto);
-  --fondo-extendido: rgba(147, 51, 234, 0.25);
-  --texto-extendido: #d8b4fe;
-  --fondo-advertencia: rgba(180, 83, 9, 0.25);
-  --borde-advertencia: #b45309;
+  --fondo-advertencia: rgba(245, 158, 11, 0.14);
+  --borde-advertencia: rgba(251, 191, 36, 0.35);
   --texto-advertencia: #fcd34d;
-  --fondo-peligro: rgba(220, 38, 38, 0.25);
-  --texto-peligro: #fca5a5;
 
-  /* --- Superficies Translúcidas y Efecto Cristal Modo Oscuro --- */
-  --fondo-traslucido: rgba(19, 13, 26, 0.82);
-  --superficie-traslucida: rgba(29, 20, 39, 0.88);
-  --borde-traslucido: rgba(55, 39, 73, 0.75);
-  --malla-patron: rgba(240, 236, 245, 0.035);
-  --halo-radial: radial-gradient(ellipse 80% 50% at 50% -10%, rgba(245, 158, 11, 0.08), transparent 70%);
+  --fondo-peligro: rgba(244, 63, 94, 0.16);
+  --borde-peligro: rgba(251, 113, 133, 0.35);
+  --texto-peligro: #fda4af;
 
-  /* --- Alias de Compatibilidad con Hojas de Estilo --- */
-  --color-crema-fondo: var(--color-ciruela-fondo);
-  --color-crema-superficie: var(--color-ciruela-superficie);
-  --color-crema-alternativa: var(--color-ciruela-alternativa);
-  --color-crema-borde: var(--color-ciruela-borde);
+  --fondo-codigo: #03060d;
+  --borde-codigo: #182338;
+  --texto-codigo: #e2e8f0;
+  --codigo-cabecera: #090f1d;
 
-  --color-abeto-principal: var(--color-seda-principal);
-  --color-abeto-texto: var(--color-seda-texto);
-  --color-abeto-texto-atenuado: var(--color-seda-texto-atenuado);
-  --color-abeto-suave: var(--color-seda-suave);
+  --fondo-traslucido: color-mix(in srgb, var(--superficie) 78%, transparent);
+  --superficie-traslucida: color-mix(in srgb, var(--superficie) 86%, transparent);
+  --borde-traslucido: color-mix(in srgb, var(--borde) 82%, transparent);
+  --malla-patron: rgba(148, 163, 184, 0.045);
 
-  --color-tomate-acento: var(--color-ambar-acento);
-  --color-tomate-interaccion: var(--color-ambar-interaccion);
-  --color-tomate-suave: var(--color-ambar-suave);
-  --color-tomate-texto: var(--color-ambar-texto);
+  --sombra-pequena: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --sombra: 0 4px 12px rgba(0, 0, 0, 0.45);
+  --sombra-grande: 0 20px 44px -8px rgba(0, 0, 0, 0.72);
+  --fondo-modal: rgba(2, 4, 10, 0.78);
+}
 
-  --sombra-pequena: 0 1px 2px rgba(0, 0, 0, 0.35);
-  --sombra: 0 1px 4px rgba(0, 0, 0, 0.45);
-  --sombra-grande: 0 16px 32px -6px rgba(0, 0, 0, 0.65);
-  --fondo-modal: rgba(10, 6, 14, 0.8);
+/* ==========================================================================
+   Paleta 2: Índigo & Cian (Estilo Editorial Tech)
+   ========================================================================== */
+:root[data-paleta="indigo"] {
+  --fondo: #f7f7fc;
+  --superficie: #ffffff;
+  --superficie-elevada: #ffffff;
+  --superficie-alternativa: #efeffa;
+  --borde: #dcdcf0;
+  --borde-suave: #eaeaf7;
+  --texto: #111024;
+  --texto-suave: #4a4869;
+  --texto-tenue: #6b698a;
+  --acento: #4f46e5;
+  --acento-al-pasar: #4338ca;
+  --acento-secundario: #06b6d4;
+  --texto-acento: #4338ca;
+  --fondo-codigo: #0b0a1a;
+  --borde-codigo: #1f1d3d;
+  --codigo-cabecera: #121029;
+  --malla-patron: rgba(79, 70, 229, 0.04);
+}
+
+:root[data-paleta="indigo"][data-tema="oscuro"] {
+  --fondo: #080714;
+  --superficie: #111024;
+  --superficie-elevada: #161530;
+  --superficie-alternativa: #1a1838;
+  --borde: #2b2852;
+  --borde-suave: #201e40;
+  --texto: #f4f4fb;
+  --texto-suave: #a3a1c2;
+  --texto-tenue: #76749a;
+  --texto-inverso: #090817;
+  --acento: #818cf8;
+  --acento-al-pasar: #a5b4fc;
+  --acento-secundario: #22d3ee;
+  --texto-acento: #a5b4fc;
+  --fondo-codigo: #04040b;
+  --borde-codigo: #1c1a38;
+  --codigo-cabecera: #0b0a1a;
+  --malla-patron: rgba(165, 180, 252, 0.045);
+}
+
+/* ==========================================================================
+   Paleta 3: Menta Terminal (Estilo Consola Moderna)
+   ========================================================================== */
+:root[data-paleta="menta"] {
+  --fondo: #f4faf7;
+  --superficie: #ffffff;
+  --superficie-elevada: #ffffff;
+  --superficie-alternativa: #e8f3ed;
+  --borde: #cfe3d8;
+  --borde-suave: #e2efe8;
+  --texto: #0b1f17;
+  --texto-suave: #3d5c4e;
+  --texto-tenue: #5d7b6d;
+  --acento: #059669;
+  --acento-al-pasar: #047857;
+  --acento-secundario: #0d9488;
+  --texto-acento: #047857;
+  --fondo-extendido: #e0f2fe;
+  --borde-extendido: #bae6fd;
+  --texto-extendido: #0369a1;
+  --fondo-codigo: #07130e;
+  --borde-codigo: #152b22;
+  --codigo-cabecera: #0c1d16;
+  --malla-patron: rgba(5, 150, 105, 0.04);
+}
+
+:root[data-paleta="menta"][data-tema="oscuro"] {
+  --fondo: #050d0a;
+  --superficie: #0c1813;
+  --superficie-elevada: #11211a;
+  --superficie-alternativa: #14261e;
+  --borde: #1e382c;
+  --borde-suave: #172b22;
+  --texto: #ecf7f2;
+  --texto-suave: #90b0a1;
+  --texto-tenue: #638475;
+  --texto-inverso: #031f13;
+  --acento: #34d399;
+  --acento-al-pasar: #6ee7b7;
+  --acento-secundario: #2dd4bf;
+  --texto-acento: #6ee7b7;
+  --fondo-extendido: rgba(56, 189, 248, 0.16);
+  --borde-extendido: rgba(56, 189, 248, 0.34);
+  --texto-extendido: #7dd3fc;
+  --fondo-codigo: #030806;
+  --borde-codigo: #152920;
+  --codigo-cabecera: #08120e;
+  --malla-patron: rgba(110, 231, 183, 0.045);
+}
+
+/* ==========================================================================
+   Paleta 4: Grafito & Coral (Estudio Cálido de Alto Contraste)
+   ========================================================================== */
+:root[data-paleta="coral"] {
+  --fondo: #faf8f6;
+  --superficie: #ffffff;
+  --superficie-elevada: #ffffff;
+  --superficie-alternativa: #f3efeb;
+  --borde: #e3dcd5;
+  --borde-suave: #eee8e2;
+  --texto: #181517;
+  --texto-suave: #574f53;
+  --texto-tenue: #786f74;
+  --acento: #e11d48;
+  --acento-al-pasar: #be123c;
+  --acento-secundario: #f97316;
+  --texto-acento: #be123c;
+  --fondo-codigo: #121013;
+  --borde-codigo: #28232b;
+  --codigo-cabecera: #1a171c;
+  --malla-patron: rgba(24, 21, 23, 0.036);
+}
+
+:root[data-paleta="coral"][data-tema="oscuro"] {
+  --fondo: #0b090c;
+  --superficie: #151217;
+  --superficie-elevada: #1c1820;
+  --superficie-alternativa: #211d26;
+  --borde: #332c3a;
+  --borde-suave: #27212d;
+  --texto: #f6f3f7;
+  --texto-suave: #aba1b2;
+  --texto-tenue: #7a7082;
+  --texto-inverso: #1c060c;
+  --acento: #fb7185;
+  --acento-al-pasar: #fda4af;
+  --acento-secundario: #fb923c;
+  --texto-acento: #fda4af;
+  --fondo-codigo: #070508;
+  --borde-codigo: #241e29;
+  --codigo-cabecera: #100d12;
+  --malla-patron: rgba(251, 113, 133, 0.045);
 }

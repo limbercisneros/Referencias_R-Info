@@ -1,5 +1,5 @@
 /**
- * Estilos basico, reset mínimo, foco visible y accesibilidad de movimiento.
+ * Estilos base, reset moderno, foco visible accesible y respeto de movimiento reducido.
  */
 
 *,
@@ -10,10 +10,40 @@
   padding: 0;
 }
 
+[hidden] {
+  display: none !important;
+}
+
 html {
-  -webkit-text-size-adjust: 100%;
-  tab-size: 4;
-  min-width: 340px;
+  text-size-adjust: 100%;
+  tab-size: 2;
+  min-inline-size: 320px;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: var(--borde) transparent;
+}
+
+/* Barras de desplazamiento limpias y discretas */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--texto-suave) 30%, transparent);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--texto-suave) 50%, transparent);
+  border: 2px solid transparent;
+  background-clip: padding-box;
 }
 
 body {
@@ -29,12 +59,15 @@ body {
   color: var(--texto);
   line-height: 1.55;
   transition: background-color var(--transicion-normal), color var(--transicion-normal);
-  min-height: 100vh;
-  min-width: 340px;
+  min-block-size: 100vh;
+  min-block-size: 100dvh;
+  min-inline-size: 320px;
   overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-body.modal-abierto {
+body.menu-bloqueado {
   overflow: hidden;
 }
 
@@ -49,16 +82,39 @@ textarea {
   color: inherit;
 }
 
-button {
+button,
+[role="button"] {
   background: transparent;
   border: none;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+a,
+input,
+select,
+textarea {
+  -webkit-tap-highlight-color: transparent;
 }
 
 code,
 pre,
+kbd,
 .tecla-atajo {
   font-family: var(--fuente-monoespaciada);
+}
+
+/* Código en línea dentro de textos explicativos */
+p code,
+li code,
+span code {
+  font-size: 0.88em;
+  padding: 0.12em 0.42em;
+  border-radius: 6px;
+  background: var(--superficie-alternativa);
+  border: 1px solid var(--borde-suave);
+  color: var(--texto-acento);
+  font-weight: 500;
 }
 
 /* ==========================================================================
@@ -77,6 +133,10 @@ pre,
    Respeto de movimiento reducido
    ========================================================================== */
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
   *,
   *::before,
   *::after {
