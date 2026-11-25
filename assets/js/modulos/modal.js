@@ -1,131 +1,176 @@
 /**
- * Módulo de ventana modal accesible con trampa de foco y restauración.
+ * Módulo de diálogo modal nativo (<dialog>) con navegación Anterior/Siguiente
+ * y enlace directo al Simulador Lógico cuando aplica.
  */
-import { seleccionar, seleccionarTodos, escaparHTML } from "./dom.js";
+import { seleccionar, escaparHTML } from "./dom.js";
 import { copiarConConfirmacion } from "./portapapeles.js";
+import { resaltarCodigoRInfo, crearBloqueCodigoHTML } from "./resaltador.js";
+import { cambiarVista } from "./navegacion.js";
 
-let ultimoElementoEnfocado = null;
 let elementoActual = null;
+let listaActual = [];
+let indiceActual = -1;
+let ultimoElementoEnfocado = null;
 
-const SELECTOR_ENFOCABLE = 'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])';
+const CATEGORIAS_SIMULADOR = new Set(["Sensores y Estado", "Operadores"]);
+const EXPRESIONES_SUGERIDAS = {
+  PosAv: "PosAv < 100",
+  PosCa: "PosCa < 100",
+  HayFlorEnLaEsquina: "HayFlorEnLaEsquina & ~HayPapelEnLaEsquina",
+  HayPapelEnLaEsquina: "HayPapelEnLaEsquina | HayFlorEnLaEsquina",
+  HayFlorEnLaBolsa: "HayFlorEnLaBolsa & ~HayFlorEnLaEsquina",
+  HayPapelEnLaBolsa: "HayPapelEnLaBolsa",
+  "&": "HayFlorEnLaEsquina & HayFlorEnLaBolsa",
+  "|": "HayFlorEnLaEsquina | HayPapelEnLaEsquina",
+  "~": "~(HayFlorEnLaEsquina | HayPapelEnLaEsquina)",
+  "=  <>  <  >  <=  >=": "PosAv <> PosCa"
+};
 
-/**
- * Abre el modal con la información de un elemento del diccionario.
- * @param {object} elemento Objeto de palabra clave
- * @param {HTMLElement} [elementoDisparador] Elemento que disparó la apertura para restaurar foco
- */
-export function abrirModal(elemento, elementoDisparador = null) {
+function actualizarContenidoDialogo() {
+  const elemento = elementoActual;
   if (!elemento) return;
-  elementoActual = elemento;
-  ultimoElementoEnfocado = elementoDisparador || document.activeElement;
 
-  const fondo = seleccionar("#fondoModal");
   const elementoTitulo = seleccionar("#tituloModal");
+  const elementoAlcance = seleccionar("#alcanceModal");
   const elementoCategoria = seleccionar("#categoriaModal");
   const elementoDescripcion = seleccionar("#descripcionModal");
-  const elementoEjemplo = seleccionar("#ejemploModal");
+  const elementoSintaxis = seleccionar("#sintaxisModal");
+  const contenedorEjemplo = seleccionar("#ejemploModalContenedor");
   const elementoNota = seleccionar("#notaModal");
+  const cuerpoModal = seleccionar("#modalCuerpo");
+  const contadorModal = seleccionar("#contadorModal");
+  const botonAnterior = seleccionar("#botonAnteriorModal");
+  const botonSiguiente = seleccionar("#botonSiguienteModal");
+  const botonProbar = seleccionar("#botonProbarSimulador");
 
   if (elementoTitulo) elementoTitulo.textContent = elemento.palabraClave;
+  if (elementoAlcance) {
+    const esBasico = elemento.alcance === "basico";
+    elementoAlcance.className = `distintivo ${esBasico ? "basico" : "extendido"}`;
+    elementoAlcance.textContent = esBasico ? "Ingreso PDF" : "Extendido";
+  }
   if (elementoCategoria) {
-    const etiquetaAlcance = elemento.alcance === "basico" ? "Curso de Ingreso (PDF)" : "Extendido / Concurrente";
-    elementoCategoria.textContent = `${elemento.categoria} • ${etiquetaAlcance}`;
+    elementoCategoria.textContent = `Categoría: ${elemento.categoria}`;
   }
   if (elementoDescripcion) elementoDescripcion.textContent = elemento.descripcion;
-  if (elementoEjemplo) elementoEjemplo.textContent = elemento.ejemplo;
+  if (elementoSintaxis) elementoSintaxis.innerHTML = resaltarCodigoRInfo(elemento.sintaxis);
+  if (contenedorEjemplo) {
+    contenedorEjemplo.innerHTML = crearBloqueCodigoHTML(elemento.ejemplo, { etiqueta: "Ejemplo R-Info" });
+  }
   if (elementoNota) {
     elementoNota.innerHTML = `<strong>Dato clave:</strong> ${escaparHTML(elemento.nota)}`;
   }
+  if (cuerpoModal) {
+    cuerpoModal.scrollTop = 0;
+  }
+  if (contadorModal) {
+    contadorModal.textContent = listaActual.length > 1 ? `${indiceActual + 1} / ${listaActual.length}` : "";
+  }
 
-  fondo.classList.add("abierto");
-  fondo.setAttribute("aria-hidden", "false");
-  document.body.classList.add("modal-abierto");
+  if (botonAnterior) {
+    botonAnterior.disabled = listaActual.length <= 1 || indiceActual <= 0;
+  }
+  if (botonSiguiente) {
+    botonSiguiente.disabled = listaActual.length <= 1 || indiceActual >= listaActual.length - 1;
+  }
 
-  // Enfocar el botón de cerrar accesible al abrir
-  const botonCerrar = seleccionar("#botonCerrarModal");
-  if (botonCerrar) {
-    window.setTimeout(() => botonCerrar.focus(), 50);
+  if (botonProbar) {
+    const esProbable = CATEGORIAS_SIMULADOR.has(elemento.categoria) && Boolean(EXPRESIONES_SUGERIDAS[elemento.palabraClave]);
+    botonProbar.hidden = !esProbable;
   }
 }
 
 /**
- * Cierra el modal y devuelve el foco al elemento disparador.
+ * Abre el diálogo nativo con la información de una palabra clave.
+ * @param {object} elemento
+ * @param {HTMLElement|null} [elementoDisparador]
+ * @param {object[]} [listaNavegacion]
  */
+export function abrirModal(elemento, elementoDisparador = null, listaNavegacion = []) {
+  const dialogo = seleccionar("#modalDetalle");
+  if (!dialogo || !elemento) return;
+
+  elementoActual = elemento;
+  listaActual = Array.isArray(listaNavegacion) && listaNavegacion.length > 0 ? listaNavegacion : [elemento];
+  indiceActual = listaActual.findIndex(item => item.palabraClave === elemento.palabraClave);
+  ultimoElementoEnfocado = elementoDisparador ?? document.activeElement;
+
+  actualizarContenidoDialogo();
+
+  if (!dialogo.open) {
+    dialogo.showModal();
+  }
+}
+
 export function cerrarModal() {
-  const fondo = seleccionar("#fondoModal");
-  if (!fondo || !fondo.classList.contains("abierto")) return;
-
-  fondo.classList.remove("abierto");
-  fondo.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("modal-abierto");
-
-  if (ultimoElementoEnfocado && typeof ultimoElementoEnfocado.focus === "function") {
-    ultimoElementoEnfocado.focus();
-  }
-  ultimoElementoEnfocado = null;
-  elementoActual = null;
-}
-
-/**
- * Atrapa la navegación con tabulación dentro del modal mientras esté abierto.
- * @param {KeyboardEvent} e
- */
-function manejarTecla(e) {
-  const fondo = seleccionar("#fondoModal");
-  if (!fondo || !fondo.classList.contains("abierto")) return;
-
-  if (e.key === "Escape") {
-    e.preventDefault();
-    cerrarModal();
-    return;
-  }
-
-  if (e.key === "Tab") {
-    const elementosEnfocables = seleccionarTodos(SELECTOR_ENFOCABLE, fondo).filter(
-      elementoEnfocable => !elementoEnfocable.hasAttribute("disabled") && elementoEnfocable.offsetParent !== null
-    );
-    if (elementosEnfocables.length === 0) return;
-
-    const primero = elementosEnfocables[0];
-    const ultimo = elementosEnfocables[elementosEnfocables.length - 1];
-
-    if (e.shiftKey && document.activeElement === primero) {
-      e.preventDefault();
-      ultimo.focus();
-    } else if (!e.shiftKey && document.activeElement === ultimo) {
-      e.preventDefault();
-      primero.focus();
-    }
+  const dialogo = seleccionar("#modalDetalle");
+  if (dialogo?.open) {
+    dialogo.close();
   }
 }
 
-/**
- * Inicializa escuchas del modal.
- */
+function navegarModal(desplazamiento) {
+  const nuevoIndice = indiceActual + desplazamiento;
+  if (nuevoIndice < 0 || nuevoIndice >= listaActual.length) return;
+  indiceActual = nuevoIndice;
+  elementoActual = listaActual[indiceActual];
+  actualizarContenidoDialogo();
+}
+
 export function inicializarModal() {
-  const fondo = seleccionar("#fondoModal");
+  const dialogo = seleccionar("#modalDetalle");
   const botonCerrar = seleccionar("#botonCerrarModal");
   const botonCopiar = seleccionar("#botonCopiarModal");
+  const botonAnterior = seleccionar("#botonAnteriorModal");
+  const botonSiguiente = seleccionar("#botonSiguienteModal");
+  const botonProbar = seleccionar("#botonProbarSimulador");
 
-  if (botonCerrar) {
-    botonCerrar.addEventListener("click", cerrarModal);
-  }
+  if (!dialogo) return;
 
-  if (botonCopiar) {
-    botonCopiar.addEventListener("click", () => {
-      if (elementoActual?.palabraClave) {
-        copiarConConfirmacion(elementoActual.palabraClave, botonCopiar, "Palabra copiada");
+  botonCerrar?.addEventListener("click", cerrarModal);
+
+  botonCopiar?.addEventListener("click", () => {
+    if (elementoActual?.palabraClave) {
+      copiarConConfirmacion(elementoActual.palabraClave, botonCopiar, "Palabra copiada");
+    }
+  });
+
+  botonAnterior?.addEventListener("click", () => navegarModal(-1));
+  botonSiguiente?.addEventListener("click", () => navegarModal(1));
+
+  botonProbar?.addEventListener("click", () => {
+    const expresion = EXPRESIONES_SUGERIDAS[elementoActual?.palabraClave];
+    cerrarModal();
+    if (expresion) {
+      const entrada = seleccionar("#entradaExpresion");
+      if (entrada) {
+        entrada.value = expresion;
+        entrada.dispatchEvent(new Event("input", { bubbles: true }));
       }
-    });
-  }
+      cambiarVista("vistaSimulador");
+    }
+  });
 
-  if (fondo) {
-    fondo.addEventListener("click", e => {
-      if (e.target === fondo) {
-        cerrarModal();
-      }
-    });
-  }
+  // Cerrar al hacer clic sobre el telón (::backdrop)
+  dialogo.addEventListener("click", e => {
+    if (e.target === dialogo) {
+      cerrarModal();
+    }
+  });
 
-  document.addEventListener("keydown", manejarTecla);
+  dialogo.addEventListener("close", () => {
+    if (ultimoElementoEnfocado && typeof ultimoElementoEnfocado.focus === "function") {
+      ultimoElementoEnfocado.focus();
+    }
+    ultimoElementoEnfocado = null;
+    elementoActual = null;
+  });
+
+  dialogo.addEventListener("keydown", e => {
+    if (e.key === "ArrowLeft") {
+      navegarModal(-1);
+    } else if (e.key === "ArrowRight") {
+      navegarModal(1);
+    }
+  });
 }
