@@ -1,23 +1,36 @@
 /**
- * Utilidades DOM seguras, accesibilidad y ayudas de selección.
+ * Utilidades DOM seguras, normalización Unicode, accesibilidad y ayudas de selección.
  */
+
+const ENTIDADES_HTML = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': "&quot;",
+  "'": "&#39;"
+};
 
 /**
  * Escapa caracteres especiales de HTML para evitar inyección XSS.
- * @param {string|number} valor
+ * @param {string|number|null|undefined} valor
  * @returns {string}
  */
 export function escaparHTML(valor) {
   if (valor === null || valor === undefined) return "";
-  const cadena = String(valor);
-  const entidades = {
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  };
-  return cadena.replace(/[&<>"']/g, caracter => entidades[caracter] || caracter);
+  return String(valor).replace(/[&<>"']/g, caracter => ENTIDADES_HTML[caracter] ?? caracter);
+}
+
+/**
+ * Normaliza texto eliminando diacríticos/tildes y convirtiendo a minúsculas.
+ * Útil para búsquedas tolerantes en español.
+ * @param {string} texto
+ * @returns {string}
+ */
+export function normalizarTexto(texto) {
+  return String(texto ?? "")
+    .normalize("NFD")
+    .replace(/\p{Diacritic}/gu, "")
+    .toLowerCase();
 }
 
 /**
@@ -31,25 +44,24 @@ export function seleccionar(selector, alcance = document) {
 }
 
 /**
- * Atajo para seleccionar varios elementos y devolver una lista nativa.
+ * Atajo para seleccionar varios elementos y devolver un arreglo nativo.
  * @param {string} selector
  * @param {ParentNode} [alcance=document]
  * @returns {Element[]}
  */
 export function seleccionarTodos(selector, alcance = document) {
-  return Array.from(alcance.querySelectorAll(selector));
+  return [...alcance.querySelectorAll(selector)];
 }
 
 /**
- * Anuncia un mensaje a tecnologías de asistencia mediante la región de anuncios.
+ * Anuncia un mensaje a tecnologías de asistencia mediante la región aria-live.
  * @param {string} mensaje
  */
 export function anunciar(mensaje) {
   const regionAnuncios = seleccionar("#regionAnuncios");
   if (!regionAnuncios) return;
-  // Limpiar y fijar contenido con un microtick para asegurar que el lector de pantalla detecte la mutación
   regionAnuncios.textContent = "";
-  window.setTimeout(() => {
+  setTimeout(() => {
     regionAnuncios.textContent = mensaje;
   }, 50);
 }
