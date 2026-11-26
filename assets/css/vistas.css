@@ -4,20 +4,16 @@
  */
 
 /* ==========================================================================
-   Vista 1: Diccionario — Sistema de Filtración Responsivo y Jerárquico
+   Vista 1: Diccionario — Comando, Filtros y Maestro-Detalle
    ========================================================================== */
-.controles-filtros {
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-  margin-block-end: 0.95rem;
-}
-
-.barra-filtros-superior {
+.comando-fila-filtros {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 0.85rem;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  padding-block-start: 0.6rem;
+  border-block-start: 1px solid var(--borde-suave);
 }
 
 .filtros-escritorio {
@@ -28,8 +24,289 @@
 .filtros {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.45rem;
+  gap: 0.32rem;
   align-items: center;
+}
+
+.filtros .ficha {
+  padding: 0.22rem 0.54rem;
+  font-size: 0.74rem;
+}
+
+.comando-meta-derecha {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.75rem;
+  min-inline-size: 0;
+  max-inline-size: 100%;
+  margin-inline-start: auto;
+}
+
+/* Distribución Maestro-Detalle (Índice + Inspector lateral) */
+.distribucion-diccionario {
+  display: grid;
+  grid-template-columns: minmax(0, 1.06fr) minmax(0, 0.94fr);
+  gap: 1.2rem;
+  align-items: start;
+}
+
+.panel-indice-diccionario {
+  background: var(--superficie);
+  border: 1px solid var(--borde);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--sombra);
+  min-inline-size: 0;
+}
+
+.cabecera-indice-diccionario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.56rem 0.95rem;
+  background: var(--superficie-alternativa);
+  border-block-end: 1px solid var(--borde-suave);
+  font-size: 0.75rem;
+  color: var(--texto-suave);
+}
+
+.conteo-indice {
+  font-weight: 600;
+}
+
+.ayuda-teclado-indice {
+  font-family: var(--fuente-monoespaciada);
+  font-size: 0.7rem;
+  color: var(--texto-tenue);
+}
+
+.lista-indice-diccionario {
+  display: flex;
+  flex-direction: column;
+}
+
+.fila-diccionario {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0.95rem;
+  border-block-end: 1px solid var(--borde-suave);
+  cursor: pointer;
+  transition: background-color var(--transicion-rapida);
+}
+
+.fila-diccionario:last-child {
+  border-block-end: none;
+}
+
+.fila-diccionario:hover {
+  background: var(--superficie-alternativa);
+}
+
+.fila-diccionario.activa {
+  background: var(--acento-suave);
+  box-shadow: inset 3px 0 0 var(--acento);
+}
+
+.fila-principal {
+  display: flex;
+  align-items: center;
+  gap: 0.72rem;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.fila-cabecera-movil {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.fila-diccionario .palabra-clave {
+  font-size: 0.81rem;
+  padding: 0.2rem 0.58rem;
+}
+
+.fila-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  flex: 1 1 auto;
+  min-inline-size: 0;
+}
+
+.fila-descripcion {
+  font-size: 0.82rem;
+  color: var(--texto);
+  line-height: 1.38;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fila-categoria {
+  font-family: var(--fuente-monoespaciada);
+  font-size: 0.69rem;
+  color: var(--texto-tenue);
+}
+
+.fila-acciones {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.solo-movil-distintivo {
+  display: none;
+}
+
+.texto-copiar-fila {
+  display: none;
+}
+
+/* Inspector lateral en vivo (Desktop) */
+.inspector-diccionario {
+  position: sticky;
+  inset-block-start: 5.15rem;
+  background: var(--superficie);
+  border: 1px solid color-mix(in srgb, var(--acento) 28%, var(--borde));
+  border-radius: 16px;
+  padding: 0;
+  box-shadow: var(--sombra);
+  display: flex;
+  flex-direction: column;
+  max-block-size: calc(100vh - 6rem);
+  overflow-y: auto;
+  min-inline-size: 0;
+}
+
+.cabecera-inspector {
+  padding: 0.95rem 1.25rem 0.65rem;
+}
+
+.inspector-titulo-fila {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.acciones-inspector {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-shrink: 0;
+}
+
+.inspector-cuerpo {
+  flex: 1 1 auto;
+  padding: 0.2rem 1.25rem 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.88rem;
+}
+
+.pie-inspector {
+  padding: 0.65rem 1.25rem 0.95rem;
+}
+
+.inspector-vacio {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--texto-suave);
+  font-size: 0.88rem;
+}
+
+/* Responsive Maestro-Detalle */
+@media (max-width: 960px) {
+  .distribucion-diccionario {
+    grid-template-columns: 1fr;
+  }
+
+  .inspector-diccionario {
+    display: none;
+  }
+
+  .fila-diccionario.activa {
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .fila-diccionario.activa:hover {
+    background: var(--superficie-alternativa);
+  }
+
+  .ayuda-teclado-indice {
+    display: none;
+  }
+}
+
+@media (max-width: 680px) {
+  .comando-meta-derecha {
+    inline-size: 100%;
+    justify-content: space-between;
+    margin-inline-start: 0;
+  }
+
+  .comando-meta-derecha .aviso-sintaxis {
+    font-size: 0.73rem;
+  }
+
+  .selector-orden-wrapper {
+    max-inline-size: 100%;
+    min-inline-size: 0;
+  }
+
+  .selector-orden {
+    font-size: 0.76rem;
+    max-inline-size: 145px;
+    text-overflow: ellipsis;
+  }
+
+  .fila-diccionario {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.48rem;
+    padding: 0.78rem 0.85rem;
+  }
+
+  .fila-principal {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.38rem;
+  }
+
+  .fila-cabecera-movil {
+    justify-content: space-between;
+  }
+
+  .fila-descripcion {
+    white-space: normal;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+
+  .solo-escritorio-distintivo {
+    display: none;
+  }
+
+  .solo-movil-distintivo {
+    display: inline-flex;
+  }
+
+  .fila-acciones {
+    justify-content: flex-end;
+  }
+
+  .texto-copiar-fila {
+    display: inline;
+  }
 }
 
 /* Selector de Orden */
@@ -1001,16 +1278,17 @@
 
   .filtro-movil-menu {
     display: block;
+    flex: 1 1 200px;
   }
 
-  .barra-filtros-superior {
+  .comando-fila-filtros {
     align-items: center;
     gap: 0.55rem;
   }
 
   .selector-orden-wrapper {
-    border-radius: 14px;
-    padding: 0.48rem 0.68rem;
+    border-radius: 12px;
+    padding: 0.42rem 0.65rem;
   }
 
   .etiqueta-orden {

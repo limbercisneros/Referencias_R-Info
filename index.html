@@ -45,12 +45,12 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- Hojas de estilo modulares -->
-  <link rel="stylesheet" href="assets/css/variables.css?v=4" />
-  <link rel="stylesheet" href="assets/css/base.css?v=4" />
-  <link rel="stylesheet" href="assets/css/distribucion.css?v=4" />
-  <link rel="stylesheet" href="assets/css/componentes.css?v=4" />
-  <link rel="stylesheet" href="assets/css/vistas.css?v=4" />
-  <link rel="stylesheet" href="assets/css/utilidades.css?v=4" />
+  <link rel="stylesheet" href="assets/css/variables.css?v=8" />
+  <link rel="stylesheet" href="assets/css/base.css?v=8" />
+  <link rel="stylesheet" href="assets/css/distribucion.css?v=8" />
+  <link rel="stylesheet" href="assets/css/componentes.css?v=8" />
+  <link rel="stylesheet" href="assets/css/vistas.css?v=8" />
+  <link rel="stylesheet" href="assets/css/utilidades.css?v=8" />
 </head>
 
 <body>
@@ -197,33 +197,26 @@
   <main>
     <!-- VISTA 1: DICCIONARIO -->
     <section id="vistaDiccionario" class="seccion-vista activa" aria-labelledby="tituloHeroDiccionario">
-      <h1 id="tituloHeroDiccionario" class="solo-lector">Diccionario interactivo del lenguaje R-Info (UNLP)</h1>
-      <div class="hero-principal">
-        <div class="identidad-hero">
-          <div class="icono-identidad-hero" aria-hidden="true">
-            <svg viewBox="0 0 24 24" width="18" height="18"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <div class="barra-comando-diccionario">
+        <div class="comando-fila-superior">
+          <div class="comando-marca">
+            <h1 id="tituloHeroDiccionario" class="titulo-comando">
+              Referencia <span class="token-titulo-rinfo">R-Info</span>
+            </h1>
+            <span class="resumen-comando" id="resumenEstadisticasHero">50 palabras · 8 categorías</span>
           </div>
-          <div class="meta-identidad">
-            <span class="etiqueta-contexto">Diccionario R-Info</span>
-            <span class="separador-contexto">·</span>
-            <span class="dato-contexto"><strong>50</strong> palabras clave</span>
-            <span class="separador-contexto">·</span>
-            <span class="dato-contexto"><strong>10</strong> categorías</span>
-          </div>
-        </div>
 
-        <!-- Tarjeta de Búsqueda -->
-        <div class="tarjeta-busqueda">
-          <div class="area-campo-busqueda">
+          <div class="caja-busqueda-inline">
             <span class="icono-busqueda-interior" aria-hidden="true">
-              <svg class="icono icono-lupa" viewBox="0 0 24 24" width="20" height="20">
+              <svg class="icono icono-lupa" viewBox="0 0 24 24" width="18" height="18">
                 <circle cx="11" cy="11" r="8"></circle>
                 <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
               </svg>
             </span>
             <input type="text" id="entradaBusqueda" class="entrada-busqueda"
-              placeholder="Buscar palabra clave, ej: mover, mientras, robot..." autocomplete="off"
+              placeholder="Filtrar 50 palabras clave, ej: mover, mientras, PosAv..." autocomplete="off"
               aria-label="Buscar palabra clave o concepto" />
+            <span class="tecla-atajo" aria-hidden="true" title="Atajo de teclado: presioná /">/</span>
             <button type="button" class="boton-limpiar-busqueda" id="botonLimpiarBusqueda" aria-label="Limpiar búsqueda" title="Limpiar búsqueda" hidden>
               <svg class="icono" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
@@ -232,59 +225,23 @@
             </button>
           </div>
 
-          <div class="pie-busqueda">
-            <div class="selector-alcance" role="group" aria-label="Filtrar por alcance de R-Info">
-              <button type="button" class="boton-alcance activa" data-alcance="todos" aria-pressed="true">
-                <span class="texto-completo">Todo R-Info</span>
-                <span class="texto-abreviado">Todo</span>
-              </button>
-              <button type="button" class="boton-alcance" data-alcance="basico" aria-pressed="false">
-                <span class="texto-completo">Solo Ingreso (PDF)</span>
-                <span class="texto-abreviado">Ingreso</span>
-              </button>
-              <button type="button" class="boton-alcance" data-alcance="extendido" aria-pressed="false">
-                <span class="texto-completo">Extendido / Concurrente</span>
-                <span class="texto-abreviado">Extendido</span>
-              </button>
-            </div>
-            <div class="acciones-busqueda">
-              <span class="tecla-atajo" aria-hidden="true" title="Atajo de teclado">/</span>
-              <button type="button" class="boton-circular-accion" id="botonIrResultados"
-                aria-label="Desplazar hacia los resultados" title="Ir a resultados">
-                <svg class="icono" viewBox="0 0 24 24" width="18" height="18" stroke-width="2.4" aria-hidden="true">
-                  <line x1="12" y1="5" x2="12" y2="19"></line>
-                  <polyline points="19 12 12 19 5 12"></polyline>
-                </svg>
-              </button>
-            </div>
+          <div class="selector-alcance" role="group" aria-label="Filtrar por alcance de R-Info">
+            <button type="button" class="boton-alcance activa" data-alcance="todos" aria-pressed="true">
+              <span class="texto-completo">Todo (50)</span>
+              <span class="texto-abreviado">Todo</span>
+            </button>
+            <button type="button" class="boton-alcance" data-alcance="basico" aria-pressed="false">
+              <span class="texto-completo">Ingreso (41)</span>
+              <span class="texto-abreviado">Ingreso</span>
+            </button>
+            <button type="button" class="boton-alcance" data-alcance="extendido" aria-pressed="false">
+              <span class="texto-completo">Extendido (9)</span>
+              <span class="texto-abreviado">Extendido</span>
+            </button>
           </div>
         </div>
 
-        <!-- Acceso directo a conceptos más consultados -->
-        <div class="bloque-frecuentes" aria-label="Consultas rápidas">
-          <div class="cabecera-frecuentes">
-            <span class="etiqueta-frecuentes">
-              <svg class="icono" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
-                <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
-              </svg>
-              <span>Consultas rápidas</span>
-            </span>
-            <span class="ayuda-frecuentes">Abre el detalle sin filtrar tu lista</span>
-          </div>
-          <div class="sugerencias-busqueda" id="sugerenciasRapidas" role="group" aria-label="Palabras clave frecuentes">
-            <button type="button" class="pildora-sugerencia" data-sugerencia="tomarFlor">tomarFlor</button>
-            <button type="button" class="pildora-sugerencia" data-sugerencia="HayFlorEnLaEsquina">HayFlorEnLaEsquina</button>
-            <button type="button" class="pildora-sugerencia" data-sugerencia="mientras">mientras</button>
-            <button type="button" class="pildora-sugerencia" data-sugerencia="PosAv">PosAv</button>
-            <button type="button" class="pildora-sugerencia" data-sugerencia="AreaC">AreaC</button>
-            <button type="button" class="pildora-sugerencia" data-sugerencia="BloquearEsquina">BloquearEsquina</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- Barra de filtros responsiva (chips en escritorio, lista desplegable en móvil) -->
-      <div class="controles-filtros">
-        <div class="barra-filtros-superior">
+        <div class="comando-fila-filtros">
           <div class="filtros-escritorio">
             <div class="filtros" id="filtrosCategoria" role="group" aria-label="Filtrar por categoría"></div>
           </div>
@@ -309,14 +266,25 @@
             <div class="menu-lista-filtros" id="menuCategoriasMovil" role="listbox" aria-label="Seleccionar categoría" hidden></div>
           </div>
 
-          <label class="selector-orden-wrapper" for="selectorOrden">
-            <span class="etiqueta-orden">Orden</span>
-            <select id="selectorOrden" class="selector-orden" aria-label="Ordenar palabras clave">
-              <option value="logico">Relevancia / R-Info</option>
-              <option value="az">Alfabético (A → Z)</option>
-              <option value="za">Alfabético (Z → A)</option>
-            </select>
-          </label>
+          <div class="comando-meta-derecha">
+            <span class="aviso-sintaxis" title="R-Info distingue mayúsculas y minúsculas">
+              <svg class="icono icono-advertencia" viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                <line x1="12" y1="9" x2="12" y2="13"></line>
+                <line x1="12" y1="17" x2="12.01" y2="17"></line>
+              </svg>
+              <span>Mayús/minús exactas</span>
+            </span>
+
+            <label class="selector-orden-wrapper" for="selectorOrden">
+              <span class="etiqueta-orden">Orden</span>
+              <select id="selectorOrden" class="selector-orden" aria-label="Ordenar palabras clave">
+                <option value="logico">Relevancia / R-Info</option>
+                <option value="az">Alfabético (A → Z)</option>
+                <option value="za">Alfabético (Z → A)</option>
+              </select>
+            </label>
+          </div>
         </div>
 
         <div class="filtros-activos-barra" id="barraFiltrosActivos" hidden>
@@ -326,28 +294,43 @@
         </div>
       </div>
 
-      <div class="barra-informacion">
-        <div class="estado-conteo">
-          <span id="etiquetaCantidad" aria-live="polite">Mostrando 0 elementos</span>
-        </div>
-        <span class="aviso-sintaxis">
-          <svg class="icono icono-advertencia" viewBox="0 0 24 24" width="15" height="15" aria-hidden="true">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      <!-- Barra de Frecuentes compacta antes del maestro-detalle -->
+      <div class="bloque-frecuentes-linea" aria-label="Consultas rápidas">
+        <span class="etiqueta-frecuentes">
+          <svg class="icono" viewBox="0 0 24 24" width="13" height="13" aria-hidden="true">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon>
           </svg>
-          <span class="texto-completo">Sintaxis <strong>sensible a mayúsculas y minúsculas</strong>.</span>
-          <span class="texto-abreviado"><strong>Mayús/minús</strong> exactas</span>
+          <span>Frecuentes:</span>
         </span>
+        <div class="sugerencias-busqueda" id="sugerenciasRapidas" role="group" aria-label="Palabras clave frecuentes">
+          <button type="button" class="pildora-sugerencia" data-sugerencia="tomarFlor">tomarFlor</button>
+          <button type="button" class="pildora-sugerencia" data-sugerencia="HayFlorEnLaEsquina">HayFlorEnLaEsquina</button>
+          <button type="button" class="pildora-sugerencia" data-sugerencia="mientras">mientras</button>
+          <button type="button" class="pildora-sugerencia" data-sugerencia="PosAv">PosAv</button>
+          <button type="button" class="pildora-sugerencia" data-sugerencia="AreaC">AreaC</button>
+          <button type="button" class="pildora-sugerencia" data-sugerencia="BloquearEsquina">BloquearEsquina</button>
+        </div>
       </div>
 
-      <section class="cuadricula" id="cuadriculaTarjetas" aria-label="Tarjetas del diccionario"></section>
+      <!-- Distribución Maestro-Detalle -->
+      <div class="distribucion-diccionario">
+        <div class="panel-indice-diccionario">
+          <div class="cabecera-indice-diccionario">
+            <span id="etiquetaCantidad" class="conteo-indice" aria-live="polite">Mostrando 50 de 50 elementos</span>
+            <span class="ayuda-teclado-indice">↑ ↓ para recorrer</span>
+          </div>
+          <section class="lista-indice-diccionario" id="cuadriculaTarjetas" aria-label="Índice de palabras clave del diccionario"></section>
+        </div>
+
+        <aside class="inspector-diccionario" id="inspectorDiccionario" aria-label="Inspector de palabra clave seleccionada" aria-live="polite"></aside>
+      </div>
     </section>
 
     <!-- VISTA 2: ANATOMÍA DE ROBOT Y ÁREA -->
     <section id="vistaAnatomia" class="seccion-vista" aria-labelledby="tituloAnatomia" aria-hidden="true">
       <div class="presentacion-anatomia">
         <div>
+          <span class="eyebrow-modulo">Módulo 02 · Arquitectura de Memoria</span>
           <h2 id="tituloAnatomia">¿Qué trae un Robot y un Área por defecto?</h2>
           <p>
             Cuando declarás un <code>robot</code> y un <code>area</code> en R-Info, el entorno crea internamente sensores, bolsa, orientación y límites. Seleccioná un componente para ver su estado inicial y cómo controlarlo.
@@ -385,6 +368,7 @@
       <div class="panel">
         <div class="cabecera-panel">
           <div>
+            <span class="eyebrow-modulo">Módulo 03 · Evaluador Booleano</span>
             <h2 id="tituloSimulador" class="titulo-panel">Simulador de Condiciones Lógicas en R-Info</h2>
             <p class="subtitulo-panel">
               Probá expresiones con <code>~</code>, <code>&amp;</code>, <code>|</code> y operadores relacionales antes de usarlas en un <code>si</code> o <code>mientras</code>.
@@ -484,6 +468,7 @@
       <div class="panel">
         <div class="cabecera-panel">
           <div>
+            <span class="eyebrow-modulo">Módulo 04 · Estructuras Base</span>
             <h2 id="tituloPlantilla" class="titulo-panel">Plantillas y Estructura Base en R-Info</h2>
             <p class="subtitulo-panel">
               Recordá: el lenguaje es <strong>sensible a mayúsculas y minúsculas</strong> y exige <strong>indentación de 2 espacios</strong> por bloque.
@@ -559,12 +544,9 @@
   <!-- Diálogo Flotante Accesible para Palabras Clave -->
   <dialog class="modal-dialogo" id="modalDetalle" aria-labelledby="tituloModal" aria-describedby="descripcionModal">
     <div class="modal-cabecera">
-      <div class="modal-titulo-grupo">
-        <div class="modal-titulo-fila">
-          <span class="palabra-clave" id="tituloModal"></span>
-          <span class="distintivo" id="alcanceModal"></span>
-        </div>
-        <div class="etiqueta-categoria" id="categoriaModal"></div>
+      <div class="modal-titulo-fila">
+        <span class="palabra-clave" id="tituloModal"></span>
+        <span class="distintivo" id="alcanceModal"></span>
       </div>
       <button type="button" class="boton boton-cerrar-modal" id="botonCerrarModal" aria-label="Cerrar diálogo">
         <svg class="icono icono-cerrar" viewBox="0 0 24 24" width="16" height="16" aria-hidden="true">
@@ -575,6 +557,7 @@
     </div>
 
     <div class="modal-cuerpo" id="modalCuerpo">
+      <div class="etiqueta-categoria" id="categoriaModal"></div>
       <p id="descripcionModal" class="descripcion-modal"></p>
 
       <div class="bloque-sintaxis-modal">

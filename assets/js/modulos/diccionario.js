@@ -1,14 +1,14 @@
 /**
- * Módulo de la vista Diccionario: búsqueda tolerante a tildes, resaltado,
- * filtros responsivos (chips en escritorio, lista desplegable en móvil),
- * ordenamiento, chips de filtros activos y enlace con el modal.
+ * Módulo de la vista Diccionario: barra de comando unificada,
+ * búsqueda tolerante a tildes, filtros responsivos (chips en escritorio, lista en móvil),
+ * índice interactivo y panel inspector en vivo (maestro-detalle).
  */
 import { DATOS_DICCIONARIO } from "../datos/diccionario.js";
 import { seleccionar, seleccionarTodos, escaparHTML, normalizarTexto } from "./dom.js";
-import { abrirModal } from "./modal.js";
+import { abrirModal, obtenerExpresionSugerida, abrirEnSimulador } from "./modal.js";
 import { copiarConConfirmacion } from "./portapapeles.js";
 import { iconoCopiar } from "./iconos.js";
-import { resaltarCodigoRInfo } from "./resaltador.js";
+import { resaltarCodigoRInfo, crearBloqueCodigoHTML } from "./resaltador.js";
 
 const CATEGORIAS = ["Todas", ...new Set(DATOS_DICCIONARIO.map(d => d.categoria))];
 
@@ -23,16 +23,18 @@ const estado = {
   categoria: "Todas",
   alcance: "todos",
   orden: "logico",
-  menuMovilAbierto: false
+  menuMovilAbierto: false,
+  seleccionada: DATOS_DICCIONARIO[0]?.palabraClave ?? null
 };
+
+function esVistaEscritorio() {
+  return Boolean(window.matchMedia?.("(min-width: 961px)").matches);
+}
 
 /* ======================================================================
    Utilidades internas
    ====================================================================== */
 
-/**
- * Resalta coincidencias de búsqueda de forma segura (sin tildes, sin XSS).
- */
 function resaltarCoincidencia(texto, consultaNormalizada) {
   if (!consultaNormalizada) return escaparHTML(texto);
 
@@ -62,9 +64,6 @@ function resaltarCoincidencia(texto, consultaNormalizada) {
   );
 }
 
-/**
- * Filtra por texto de búsqueda + alcance (sin aplicar categoría).
- */
 function obtenerCoincidenciasTextoYAlcance() {
   const q = normalizarTexto(estado.busqueda.trim());
 
@@ -80,9 +79,6 @@ function obtenerCoincidenciasTextoYAlcance() {
   });
 }
 
-/**
- * Calcula los conteos por categoría a partir de la base filtrada.
- */
 function calcularConteos(base) {
   const conteo = new Map();
   base.forEach(item => {
@@ -91,9 +87,6 @@ function calcularConteos(base) {
   return conteo;
 }
 
-/**
- * Aplica el orden seleccionado a la lista filtrada.
- */
 function ordenarResultados(lista) {
   if (estado.orden === "az") {
     return [...lista].sort((a, b) => a.palabraClave.localeCompare(b.palabraClave, "es"));
@@ -101,13 +94,17 @@ function ordenarResultados(lista) {
   if (estado.orden === "za") {
     return [...lista].sort((a, b) => b.palabraClave.localeCompare(a.palabraClave, "es"));
   }
-  // "logico" = orden original del array de datos
   return lista;
 }
 
-/**
- * ¿Hay algún filtro activo (distinto del estado por defecto)?
- */
+function obtenerListaFiltradaOrdenada() {
+  const base = obtenerCoincidenciasTextoYAlcance();
+  const filtrados = base.filter(
+    elemento => estado.categoria === "Todas" || elemento.categoria === estado.categoria
+  );
+  return ordenarResultados(filtrados);
+}
+
 function hayFiltrosActivos() {
   return (
     Boolean(estado.busqueda.trim()) ||
@@ -117,7 +114,7 @@ function hayFiltrosActivos() {
 }
 
 /* ======================================================================
-   Chips de categoría (escritorio)
+   Chips de categoría (escritorio) + menú móvil
    ====================================================================== */
 
 export function representarCategorias() {
@@ -146,13 +143,8 @@ export function representarCategorias() {
     `;
   }).join("");
 
-  // También actualizar el menú de categorías en móvil
   representarMenuMovilCategorias(base, conteoPorCategoria);
 }
-
-/* ======================================================================
-   Menú desplegable de categorías (móvil)
-   ====================================================================== */
 
 function representarMenuMovilCategorias(base, conteoPorCategoria) {
   const menuMovil = seleccionar("#menuCategoriasMovil");
@@ -183,7 +175,6 @@ function representarMenuMovilCategorias(base, conteoPorCategoria) {
     `;
   }).join("");
 
-  // Actualizar la etiqueta del botón desplegable
   if (etiquetaActiva) {
     const cantidadActiva = estado.categoria === "Todas"
       ? base.length
@@ -204,9 +195,8 @@ function toggleMenuMovil(forzarCerrar = false) {
   menu.hidden = !abierto;
 
   if (abierto) {
-    // Enfocar la opción activa
-    const activa = menu.querySelector(".opcion-lista-filtro.activa");
-    activa?.focus();
+    const activa = menu.querySelector?.(".opcion-lista-filtro.activa");
+    activa?.focus?.();
   }
 }
 
@@ -240,21 +230,21 @@ function representarFiltrosActivos() {
   if (estado.busqueda.trim()) {
     chips.push({
       tipo: "busqueda",
-      texto: `Búsqueda: "${estado.busqueda.trim()}"`,
+      texto: `Búsqueda: "${estado.busqueda.trim()}"`
     });
   }
 
   if (estado.categoria !== "Todas") {
     chips.push({
       tipo: "categoria",
-      texto: `Categoría: ${estado.categoria}`,
+      texto: `Categoría: ${estado.categoria}`
     });
   }
 
   if (estado.alcance !== "todos") {
     chips.push({
       tipo: "alcance",
-      texto: ETIQUETAS_ALCANCE[estado.alcance] ?? estado.alcance,
+      texto: ETIQUETAS_ALCANCE[estado.alcance] ?? estado.alcance
     });
   }
 
@@ -276,23 +266,129 @@ function representarFiltrosActivos() {
 }
 
 /* ======================================================================
-   Renderizar tarjetas de diccionario
+   Inspector lateral en vivo (Escritorio)
+   ====================================================================== */
+
+function representarInspector(filtrados) {
+  const inspector = seleccionar("#inspectorDiccionario");
+  if (!inspector) return;
+
+  let elemento = buscarPalabraClave(estado.seleccionada);
+  const indiceEnFiltrados = filtrados.findIndex(item => item.palabraClave === estado.seleccionada);
+
+  if (!elemento && filtrados.length > 0) {
+    elemento = filtrados[0];
+    estado.seleccionada = elemento.palabraClave;
+  }
+
+  if (!elemento) {
+    inspector.innerHTML = `
+      <div class="inspector-vacio">
+        <p>Elegí una palabra clave o restablecé los filtros para ver su sintaxis y ejemplo.</p>
+      </div>
+    `;
+    return;
+  }
+
+  const esBasico = elemento.alcance === "basico";
+  const claseDistintivo = esBasico ? "basico" : "extendido";
+  const textoDistintivo = esBasico ? "Ingreso PDF" : "Extendido";
+  const expresionSimulador = obtenerExpresionSugerida(elemento);
+  const listaNav = indiceEnFiltrados >= 0 ? filtrados : DATOS_DICCIONARIO;
+  const indiceNav = listaNav.findIndex(item => item.palabraClave === elemento.palabraClave);
+
+  inspector.scrollTop = 0;
+  inspector.innerHTML = `
+    <div class="cabecera-inspector">
+      <div class="inspector-titulo-fila">
+        <span class="palabra-clave">${escaparHTML(elemento.palabraClave)}</span>
+        <span class="distintivo ${claseDistintivo}">${textoDistintivo}</span>
+      </div>
+
+      <div class="acciones-inspector">
+        ${expresionSimulador ? `
+          <button type="button" class="boton sutil" data-accion="probar-simulador-inspector" data-palabra-clave="${escaparHTML(elemento.palabraClave)}">
+            Probar
+          </button>
+        ` : ""}
+        <button
+          type="button"
+          class="boton principal"
+          data-accion="copiar-inspector"
+          data-palabra-clave="${escaparHTML(elemento.palabraClave)}"
+        >
+          ${iconoCopiar(14)}
+          <span>Copiar</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="inspector-cuerpo">
+      <div class="etiqueta-categoria">Categoría: ${escaparHTML(elemento.categoria)}</div>
+
+      <p class="descripcion-modal">${escaparHTML(elemento.descripcion)}</p>
+
+      <div class="bloque-sintaxis-modal">
+        <div class="etiqueta-seccion">Sintaxis oficial</div>
+        <div class="vista-sintaxis">${resaltarCodigoRInfo(elemento.sintaxis)}</div>
+      </div>
+
+      <div class="bloque-ejemplo-modal">
+        <div class="etiqueta-seccion">Ejemplo en R-Info</div>
+        ${crearBloqueCodigoHTML(elemento.ejemplo, { etiqueta: "Ejemplo R-Info" })}
+      </div>
+
+      <div class="caja-nota">
+        <strong>Dato clave:</strong> ${escaparHTML(elemento.nota)}
+      </div>
+    </div>
+
+    <div class="pie-inspector">
+      <div class="navegacion-modal">
+        <button
+          type="button"
+          class="boton sutil"
+          data-accion="inspector-anterior"
+          ${indiceNav <= 0 ? "disabled" : ""}
+        >← Anterior</button>
+        <span class="contador-modal">${indiceNav + 1} / ${listaNav.length}</span>
+        <button
+          type="button"
+          class="boton sutil"
+          data-accion="inspector-siguiente"
+          ${indiceNav >= listaNav.length - 1 ? "disabled" : ""}
+        >Siguiente →</button>
+      </div>
+
+      <button
+        type="button"
+        class="boton sutil"
+        data-accion="ampliar-modal-inspector"
+        data-palabra-clave="${escaparHTML(elemento.palabraClave)}"
+        title="Abrir en vista ampliada"
+      >Vista ampliada</button>
+    </div>
+  `;
+}
+
+/* ======================================================================
+   Renderizar índice de palabras clave + inspector
    ====================================================================== */
 
 export function representarDiccionario() {
-  const cuadricula = seleccionar("#cuadriculaTarjetas");
+  const listaContenedor = seleccionar("#cuadriculaTarjetas");
   const etiquetaCantidad = seleccionar("#etiquetaCantidad");
   const botonLimpiar = seleccionar("#botonLimpiarBusqueda");
-  if (!cuadricula || !etiquetaCantidad) return;
+  if (!listaContenedor || !etiquetaCantidad) return;
 
   const q = normalizarTexto(estado.busqueda.trim());
-  const base = obtenerCoincidenciasTextoYAlcance();
-  const filtradosSinOrden = base.filter(
-    elemento => estado.categoria === "Todas" || elemento.categoria === estado.categoria
-  );
-  const filtrados = ordenarResultados(filtradosSinOrden);
+  const filtrados = obtenerListaFiltradaOrdenada();
 
-  // Chips de filtros activos + botón restablecer
+  // Mantener selección coherente cuando el filtro actual excluye el elemento activo
+  if (filtrados.length > 0 && !filtrados.some(item => item.palabraClave === estado.seleccionada)) {
+    estado.seleccionada = filtrados[0].palabraClave;
+  }
+
   representarFiltrosActivos();
 
   if (botonLimpiar) {
@@ -304,48 +400,58 @@ export function representarDiccionario() {
   etiquetaCantidad.textContent = `Mostrando ${filtrados.length} de ${DATOS_DICCIONARIO.length} elementos`;
 
   if (filtrados.length === 0) {
-    cuadricula.innerHTML = `
+    listaContenedor.innerHTML = `
       <div class="estado-vacio" role="status">
         <p>No se encontraron palabras clave con ese filtro.</p>
         <button type="button" class="boton principal" data-accion="restablecer-filtros">Restablecer todos los filtros</button>
       </div>
     `;
+    representarInspector(filtrados);
     return;
   }
 
-  cuadricula.innerHTML = filtrados.map(elemento => {
-    const claseDistintivo = elemento.alcance === "basico" ? "basico" : "extendido";
-    const textoDistintivo = elemento.alcance === "basico" ? "Ingreso PDF" : "Extendido";
+  listaContenedor.innerHTML = filtrados.map(elemento => {
+    const esBasico = elemento.alcance === "basico";
+    const claseDistintivo = esBasico ? "basico" : "extendido";
+    const textoDistintivo = esBasico ? "Ingreso" : "Extendido";
+    const estaActiva = elemento.palabraClave === estado.seleccionada;
 
     return `
       <article
-        class="tarjeta"
+        class="fila-diccionario ${estaActiva ? "activa" : ""}"
         data-accion="abrir-modal"
         data-palabra-clave="${escaparHTML(elemento.palabraClave)}"
         tabindex="0"
         role="button"
+        aria-pressed="${estaActiva}"
         aria-label="Ver detalles de ${escaparHTML(elemento.palabraClave)}"
       >
-        <div class="cabecera-tarjeta">
-          <span class="palabra-clave">${resaltarCoincidencia(elemento.palabraClave, q)}</span>
-          <span class="distintivo ${claseDistintivo}">${textoDistintivo}</span>
+        <div class="fila-principal">
+          <div class="fila-cabecera-movil">
+            <span class="palabra-clave">${resaltarCoincidencia(elemento.palabraClave, q)}</span>
+            <span class="distintivo ${claseDistintivo} solo-movil-distintivo">${textoDistintivo}</span>
+          </div>
+          <div class="fila-texto">
+            <p class="fila-descripcion">${resaltarCoincidencia(elemento.descripcion, q)}</p>
+            <span class="fila-categoria">${escaparHTML(elemento.categoria)}</span>
+          </div>
         </div>
-        <div class="etiqueta-categoria">${escaparHTML(elemento.categoria)}</div>
-        <p class="descripcion">${resaltarCoincidencia(elemento.descripcion, q)}</p>
-        <div class="vista-sintaxis">${resaltarCodigoRInfo(elemento.sintaxis)}</div>
-        <div class="pie-tarjeta">
-          <span>Clic para ver ejemplo y reglas</span>
+        <div class="fila-acciones">
+          <span class="distintivo ${claseDistintivo} solo-escritorio-distintivo">${textoDistintivo}</span>
           <button
             type="button"
             class="boton-copiar-pequeno"
             data-accion="copiar-palabra-clave"
             data-palabra-clave="${escaparHTML(elemento.palabraClave)}"
             aria-label="Copiar palabra clave ${escaparHTML(elemento.palabraClave)}"
-          >${iconoCopiar(13)} <span>Copiar</span></button>
+            title="Copiar palabra clave"
+          >${iconoCopiar(13)} <span class="texto-copiar-fila">Copiar</span></button>
         </div>
       </article>
     `;
   }).join("");
+
+  representarInspector(filtrados);
 }
 
 /* ======================================================================
@@ -356,11 +462,19 @@ export function buscarPalabraClave(palabraClave) {
   return DATOS_DICCIONARIO.find(d => d.palabraClave === palabraClave);
 }
 
+function seleccionarEnInspector(palabraClave) {
+  const elemento = buscarPalabraClave(palabraClave);
+  if (!elemento) return;
+  estado.seleccionada = elemento.palabraClave;
+  representarDiccionario();
+}
+
 export function restablecerFiltros() {
   estado.busqueda = "";
   estado.categoria = "Todas";
   estado.alcance = "todos";
   estado.orden = "logico";
+  estado.seleccionada = DATOS_DICCIONARIO[0]?.palabraClave ?? null;
 
   const entradaBusqueda = seleccionar("#entradaBusqueda");
   if (entradaBusqueda) entradaBusqueda.value = "";
@@ -374,15 +488,12 @@ export function restablecerFiltros() {
     boton.setAttribute("aria-pressed", String(sonTodos));
   });
 
-  toggleMenuMovil(true); // cerrar el desplegable si estaba abierto
+  toggleMenuMovil(true);
 
   representarCategorias();
   representarDiccionario();
 }
 
-/**
- * Quita un filtro específico por tipo.
- */
 function quitarFiltro(tipo) {
   switch (tipo) {
     case "busqueda": {
@@ -409,22 +520,28 @@ function quitarFiltro(tipo) {
 }
 
 /**
- * Abre directamente el modal sin alterar filtros.
+ * Abre directamente el modal de una palabra clave sin alterar ni ensuciar
+ * los filtros actuales del diccionario.
  */
 export function abrirPalabraClaveDirecta(palabraClave, elementoDisparador = null) {
   const elemento = buscarPalabraClave(palabraClave);
   if (!elemento) return;
 
-  const tarjetaElemento = elementoDisparador ?? seleccionar(`.tarjeta[data-palabra-clave="${CSS.escape(palabraClave)}"]`);
+  estado.seleccionada = elemento.palabraClave;
+  const tarjetaElemento = elementoDisparador ?? seleccionar(`.fila-diccionario[data-palabra-clave="${CSS.escape(palabraClave)}"]`);
   abrirModal(elemento, tarjetaElemento, DATOS_DICCIONARIO);
 }
 
 /**
- * Restablece filtros y abre una palabra clave desde otra vista (ej. Anatomía).
+ * Restablece filtros y selecciona o abre una palabra clave desde otra vista (ej. Anatomía).
  */
 export function filtrarYAbrirPalabraClave(palabraClave) {
   restablecerFiltros();
-  abrirPalabraClaveDirecta(palabraClave);
+  if (esVistaEscritorio()) {
+    seleccionarEnInspector(palabraClave);
+  } else {
+    abrirPalabraClaveDirecta(palabraClave);
+  }
 }
 
 /* ======================================================================
@@ -434,16 +551,21 @@ export function filtrarYAbrirPalabraClave(palabraClave) {
 export function inicializarDiccionario() {
   const entradaBusqueda = seleccionar("#entradaBusqueda");
   const botonLimpiar = seleccionar("#botonLimpiarBusqueda");
-  const botonIrResultados = seleccionar("#botonIrResultados");
   const botonRestablecer = seleccionar("#botonRestablecerFiltros");
   const contenedorCategorias = seleccionar("#filtrosCategoria");
   const selectorAlcance = seleccionar(".selector-alcance");
   const sugerenciasRapidas = seleccionar("#sugerenciasRapidas");
-  const cuadricula = seleccionar("#cuadriculaTarjetas");
+  const listaContenedor = seleccionar("#cuadriculaTarjetas");
+  const inspector = seleccionar("#inspectorDiccionario");
   const botonMenuCategorias = seleccionar("#botonMenuCategorias");
   const menuCategoriasMovil = seleccionar("#menuCategoriasMovil");
   const selectorOrden = seleccionar("#selectorOrden");
   const barraFiltrosActivos = seleccionar("#barraFiltrosActivos");
+  const resumenHero = seleccionar("#resumenEstadisticasHero");
+
+  if (resumenHero) {
+    resumenHero.textContent = `${DATOS_DICCIONARIO.length} palabras · ${CATEGORIAS.length - 1} categorías`;
+  }
 
   /* --- Búsqueda --- */
   entradaBusqueda?.addEventListener("input", e => {
@@ -454,7 +576,12 @@ export function inicializarDiccionario() {
 
   entradaBusqueda?.addEventListener("keydown", e => {
     if (e.key === "Enter") {
-      cuadricula?.scrollIntoView({ behavior: "smooth", block: "start" });
+      const primeraFila = listaContenedor?.querySelector?.(".fila-diccionario");
+      if (primeraFila) {
+        estado.seleccionada = primeraFila.dataset.palabraClave;
+        representarDiccionario();
+        primeraFila.focus?.();
+      }
     } else if (e.key === "Escape" && estado.busqueda) {
       e.stopPropagation();
       estado.busqueda = "";
@@ -474,11 +601,6 @@ export function inicializarDiccionario() {
     representarDiccionario();
   });
 
-  botonIrResultados?.addEventListener("click", () => {
-    cuadricula?.scrollIntoView({ behavior: "smooth", block: "start" });
-    entradaBusqueda?.focus();
-  });
-
   /* --- Restablecer filtros --- */
   botonRestablecer?.addEventListener("click", () => {
     restablecerFiltros();
@@ -489,7 +611,11 @@ export function inicializarDiccionario() {
   sugerenciasRapidas?.addEventListener("click", e => {
     const boton = e.target.closest("button[data-sugerencia]");
     const palabra = boton?.dataset.sugerencia;
-    if (palabra) {
+    if (!palabra) return;
+
+    if (esVistaEscritorio()) {
+      seleccionarEnInspector(palabra);
+    } else {
       abrirPalabraClaveDirecta(palabra, boton);
     }
   });
@@ -535,7 +661,6 @@ export function inicializarDiccionario() {
     representarDiccionario();
   });
 
-  // Cerrar menú móvil al hacer clic afuera
   document.addEventListener("click", e => {
     if (!estado.menuMovilAbierto) return;
     const contenedor = seleccionar("#contenedorFiltroMovil");
@@ -544,7 +669,6 @@ export function inicializarDiccionario() {
     }
   });
 
-  // Cerrar menú móvil con Escape
   document.addEventListener("keydown", e => {
     if (e.key === "Escape" && estado.menuMovilAbierto) {
       toggleMenuMovil(true);
@@ -565,7 +689,6 @@ export function inicializarDiccionario() {
       quitarFiltro(chip.dataset.tipoFiltro);
       return;
     }
-    // El botón "Restablecer filtros" dentro de la barra
     const botonReset = e.target.closest("#botonRestablecerFiltros");
     if (botonReset) {
       restablecerFiltros();
@@ -573,9 +696,25 @@ export function inicializarDiccionario() {
     }
   });
 
-  /* --- Cuadrícula de tarjetas --- */
-  if (cuadricula) {
-    cuadricula.addEventListener("click", e => {
+  /* --- Índice de palabras clave (clics y teclado ↑/↓) --- */
+  if (listaContenedor) {
+    const activarFila = fila => {
+      const palabraClave = fila.dataset.palabraClave;
+      const elemento = buscarPalabraClave(palabraClave);
+      if (!elemento) return;
+
+      if (esVistaEscritorio()) {
+        estado.seleccionada = palabraClave;
+        representarDiccionario();
+        // Mantener foco en la fila seleccionada tras re-render
+        const filaNueva = listaContenedor.querySelector(`.fila-diccionario[data-palabra-clave="${CSS.escape(palabraClave)}"]`);
+        filaNueva?.focus?.({ preventScroll: true });
+      } else {
+        abrirModal(elemento, fila, obtenerListaFiltradaOrdenada());
+      }
+    };
+
+    listaContenedor.addEventListener("click", e => {
       const botonReset = e.target.closest('button[data-accion="restablecer-filtros"]');
       if (botonReset) {
         restablecerFiltros();
@@ -591,39 +730,79 @@ export function inicializarDiccionario() {
         return;
       }
 
-      const tarjeta = e.target.closest('.tarjeta[data-accion="abrir-modal"]');
-      if (tarjeta) {
-        const palabraClave = tarjeta.dataset.palabraClave;
-        const elemento = buscarPalabraClave(palabraClave);
-        const filtrados = obtenerCoincidenciasTextoYAlcance().filter(
-          item => estado.categoria === "Todas" || item.categoria === estado.categoria
-        );
-        if (elemento) abrirModal(elemento, tarjeta, filtrados);
-      }
+      const fila = e.target.closest('.fila-diccionario[data-accion="abrir-modal"]');
+      if (fila) activarFila(fila);
     });
 
-    cuadricula.addEventListener("keydown", e => {
-      if (e.key === "Enter" || e.key === " ") {
-        const botonCopiar = e.target.closest('button[data-accion="copiar-palabra-clave"]');
-        if (botonCopiar) return;
+    listaContenedor.addEventListener("keydown", e => {
+      const fila = e.target.closest('.fila-diccionario[data-accion="abrir-modal"]');
+      if (!fila || e.target !== fila) return;
 
-        const tarjeta = e.target.closest('.tarjeta[data-accion="abrir-modal"]');
-        if (tarjeta && e.target === tarjeta) {
-          e.preventDefault();
-          const palabraClave = tarjeta.dataset.palabraClave;
-          const elemento = buscarPalabraClave(palabraClave);
-          const filtrados = obtenerCoincidenciasTextoYAlcance().filter(
-            item => estado.categoria === "Todas" || item.categoria === estado.categoria
-          );
-          if (elemento) abrirModal(elemento, tarjeta, filtrados);
+      if (e.key === "Enter" || e.key === " ") {
+        e.preventDefault();
+        activarFila(fila);
+        return;
+      }
+
+      if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+        e.preventDefault();
+        const filtrados = obtenerListaFiltradaOrdenada();
+        const idx = filtrados.findIndex(item => item.palabraClave === fila.dataset.palabraClave);
+        if (idx === -1) return;
+        const siguienteIdx = e.key === "ArrowDown"
+          ? Math.min(filtrados.length - 1, idx + 1)
+          : Math.max(0, idx - 1);
+        const siguientePalabra = filtrados[siguienteIdx]?.palabraClave;
+        if (siguientePalabra) {
+          estado.seleccionada = siguientePalabra;
+          representarDiccionario();
+          const filaNueva = listaContenedor.querySelector(`.fila-diccionario[data-palabra-clave="${CSS.escape(siguientePalabra)}"]`);
+          filaNueva?.focus?.();
         }
       }
     });
   }
 
-  /* --- Inicialización --- */
+  /* --- Eventos del Inspector lateral --- */
+  inspector?.addEventListener("click", e => {
+    const botonCopiar = e.target.closest('button[data-accion="copiar-inspector"]');
+    if (botonCopiar) {
+      const palabra = botonCopiar.dataset.palabraClave;
+      if (palabra) copiarConConfirmacion(palabra, botonCopiar, "Palabra copiada");
+      return;
+    }
 
-  // Sincronizar con el valor inicial del campo de búsqueda (por ej. al recargar)
+    const botonProbar = e.target.closest('button[data-accion="probar-simulador-inspector"]');
+    if (botonProbar) {
+      const palabra = botonProbar.dataset.palabraClave;
+      if (palabra) abrirEnSimulador(palabra);
+      return;
+    }
+
+    const botonAmpliar = e.target.closest('button[data-accion="ampliar-modal-inspector"]');
+    if (botonAmpliar) {
+      const palabra = botonAmpliar.dataset.palabraClave;
+      const elemento = buscarPalabraClave(palabra);
+      const filtrados = obtenerListaFiltradaOrdenada();
+      const listaNav = filtrados.some(i => i.palabraClave === palabra) ? filtrados : DATOS_DICCIONARIO;
+      if (elemento) abrirModal(elemento, botonAmpliar, listaNav);
+      return;
+    }
+
+    const botonAnterior = e.target.closest('button[data-accion="inspector-anterior"]');
+    const botonSiguiente = e.target.closest('button[data-accion="inspector-siguiente"]');
+    if (botonAnterior || botonSiguiente) {
+      const filtrados = obtenerListaFiltradaOrdenada();
+      const listaNav = filtrados.some(i => i.palabraClave === estado.seleccionada) ? filtrados : DATOS_DICCIONARIO;
+      const idx = listaNav.findIndex(i => i.palabraClave === estado.seleccionada);
+      const nuevoIdx = botonAnterior ? idx - 1 : idx + 1;
+      if (nuevoIdx >= 0 && nuevoIdx < listaNav.length) {
+        estado.seleccionada = listaNav[nuevoIdx].palabraClave;
+        representarDiccionario();
+      }
+    }
+  });
+
   if (entradaBusqueda && entradaBusqueda.value) {
     estado.busqueda = entradaBusqueda.value;
   }
@@ -631,7 +810,6 @@ export function inicializarDiccionario() {
   representarCategorias();
   representarDiccionario();
 
-  // Garantiza coherencia si el navegador restaura estado desde BFCache
   window.addEventListener("pageshow", () => {
     estado.busqueda = entradaBusqueda?.value ?? "";
     representarCategorias();

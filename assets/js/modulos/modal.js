@@ -26,6 +26,22 @@ const EXPRESIONES_SUGERIDAS = {
   "=  <>  <  >  <=  >=": "PosAv <> PosCa"
 };
 
+export function obtenerExpresionSugerida(elemento) {
+  if (!elemento || !CATEGORIAS_SIMULADOR.has(elemento.categoria)) return null;
+  return EXPRESIONES_SUGERIDAS[elemento.palabraClave] ?? null;
+}
+
+export function abrirEnSimulador(palabraClave) {
+  const expresion = EXPRESIONES_SUGERIDAS[palabraClave];
+  if (!expresion) return;
+  const entrada = seleccionar("#entradaExpresion");
+  if (entrada) {
+    entrada.value = expresion;
+    entrada.dispatchEvent(new Event("input", { bubbles: true }));
+  }
+  cambiarVista("vistaSimulador");
+}
+
 function actualizarContenidoDialogo() {
   const elemento = elementoActual;
   if (!elemento) return;
@@ -78,8 +94,7 @@ function actualizarContenidoDialogo() {
   }
 
   if (botonProbar) {
-    const esProbable = CATEGORIAS_SIMULADOR.has(elemento.categoria) && Boolean(EXPRESIONES_SUGERIDAS[elemento.palabraClave]);
-    botonProbar.hidden = !esProbable;
+    botonProbar.hidden = !obtenerExpresionSugerida(elemento);
   }
 }
 
@@ -142,16 +157,9 @@ export function inicializarModal() {
   botonSiguiente?.addEventListener("click", () => navegarModal(1));
 
   botonProbar?.addEventListener("click", () => {
-    const expresion = EXPRESIONES_SUGERIDAS[elementoActual?.palabraClave];
+    const palabra = elementoActual?.palabraClave;
     cerrarModal();
-    if (expresion) {
-      const entrada = seleccionar("#entradaExpresion");
-      if (entrada) {
-        entrada.value = expresion;
-        entrada.dispatchEvent(new Event("input", { bubbles: true }));
-      }
-      cambiarVista("vistaSimulador");
-    }
+    if (palabra) abrirEnSimulador(palabra);
   });
 
   // Cerrar al hacer clic sobre el telón (::backdrop)
